@@ -47,4 +47,7 @@ prisma.config.ts
 *.tsbuildinfo
 next-env.d.ts
 
+# claude
+CLAUDE.md
 /src/generated/prisma
+CLAUDE.md
