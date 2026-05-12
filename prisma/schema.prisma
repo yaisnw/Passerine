@@ -20,12 +20,12 @@ enum WatchStatus {
 }
 
 model User {
-  user_id    Int        @id @default(autoincrement())
-  name       String     @unique
-  email      String     @unique
+  user_id    Int         @id @default(autoincrement())
+  name       String      @unique
+  email      String      @unique
   avatar_url String
-  created_at DateTime   @default(now())
-  updated_at DateTime   @updatedAt
+  created_at DateTime    @default(now())
+  updated_at DateTime    @updatedAt
   watchlist  Watchlist[]
   reviews    Review[]
 }
@@ -49,12 +49,12 @@ model Watchlist {
 }
 
 model Review {
-  review_id   Int       @id @default(autoincrement())
-  watchlist_id Int      @unique
-  user_id     Int?
-  rating      Int
-  review_text String?
-  reviewed_at DateTime  @default(now())
-  watchlist   Watchlist @relation(fields: [watchlist_id], references: [watchlist_id], onDelete: Cascade)
-  user        User?     @relation(fields: [user_id], references: [user_id], onDelete: SetNull)
+  review_id    Int       @id @default(autoincrement())
+  watchlist_id Int       @unique
+  user_id      Int?
+  rating       Int
+  review_text  String?
+  reviewed_at  DateTime  @default(now())
+  watchlist    Watchlist @relation(fields: [watchlist_id], references: [watchlist_id], onDelete: Cascade)
+  user         User?     @relation(fields: [user_id], references: [user_id], onDelete: SetNull)
 }
