@@ -23,6 +23,7 @@ model User {
   user_id    Int         @id @default(autoincrement())
   name       String      @unique
   email      String      @unique
+  password   String?
   avatar_url String
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
