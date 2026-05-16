@@ -9,6 +9,14 @@ class InvalidCredentialsError extends CredentialsSignin {
 }
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
+  pages: {
+    signIn: "/login",
+  },
+  callbacks: {
+    async redirect() {
+      return "/"
+    },
+  },
   providers: [
     Google,
     Credentials({
