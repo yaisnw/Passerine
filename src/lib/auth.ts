@@ -16,6 +16,13 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
     async redirect() {
       return "/"
     },
+    async session({ session, token }) {
+      if (session.user && token.email) {
+        const user = await prisma.user.findUnique({ where: { email: token.email } })
+        if (user) session.user.image = user.avatar_url
+      }
+      return session
+    },
   },
   providers: [
     Google,
@@ -36,7 +43,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
         const valid = await argon2.verify(user.password, password)
         if (!valid) throw new InvalidCredentialsError()
 
-        return { id: String(user.user_id), name: user.name, email: user.email }
+        return { id: String(user.user_id), name: user.name, email: user.email, image: user.avatar_url }
       },
     }),
   ],
