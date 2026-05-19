@@ -53,7 +53,7 @@ model Review {
   review_id    Int       @id @default(autoincrement())
   watchlist_id Int       @unique
   user_id      Int?
-  rating       Int
+  rating       Float
   review_text  String?
   reviewed_at  DateTime  @default(now())
   watchlist    Watchlist @relation(fields: [watchlist_id], references: [watchlist_id], onDelete: Cascade)

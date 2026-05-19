@@ -4,8 +4,12 @@ import { notFound } from "next/navigation"
 import { Star, Clock, Calendar, Globe, BarChart2, Tv, ArrowLeft } from "lucide-react"
 import Navbar from "@/components/navbar"
 import BackdropLightbox from "@/components/backdrop-lightbox"
+import AddToWatchlistButton from "@/components/add-to-watchlist-button"
 import { getMovieDetails, getMovieCredits, getTvDetails, getTvCredits, tmdbImage } from "@/lib/tmdb"
 import type { MediaType, MovieDetails, TvDetails } from "@/lib/tmdb.types"
+import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/db"
+import { MediaType as PrismaMediaType } from "@/generated/prisma/enums"
 
 interface Props {
   params: Promise<{ type: string; id: string }>
@@ -19,6 +23,8 @@ export default async function MediaPage({ params }: Props) {
 
   const mediaType = type as MediaType
 
+  const session = await auth()
+
   const [media, credits] = await Promise.all([
     mediaType === "movie"
       ? getMovieDetails(mediaId).catch(() => null)
@@ -28,6 +34,23 @@ export default async function MediaPage({ params }: Props) {
       : getTvCredits(mediaId).catch(() => null),
   ])
 
+  let watchlist_id: number | null = null
+  if (session?.user?.email) {
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } })
+    if (user) {
+      const entry = await prisma.watchlist.findUnique({
+        where: {
+          user_id_tmdb_id_media_type: {
+            user_id: user.user_id,
+            tmdb_id: mediaId,
+            media_type: mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV,
+          },
+        },
+        select: { watchlist_id: true },
+      })
+      watchlist_id = entry?.watchlist_id ?? null
+    }
+  }
   if (!media) notFound()
 
   const isMovie = mediaType === "movie"
@@ -206,7 +229,16 @@ export default async function MediaPage({ params }: Props) {
 
               {/* Actions */}
               <div className="flex flex-wrap gap-2 pt-1">
-                {/* TODO: watchlist + review actions */}
+                {session && (
+                  <AddToWatchlistButton
+                    tmdb_id={mediaId}
+                    media_type={mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV}
+                    title={title}
+                    poster_path={media.poster_path ?? ""}
+                    watchlist_id={watchlist_id}
+                    variant="full"
+                  />
+                )}
                 {media.backdrop_path && (
                   <BackdropLightbox
                     src={tmdbImage(media.backdrop_path, "original")}

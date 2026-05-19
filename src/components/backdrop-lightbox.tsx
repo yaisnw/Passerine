@@ -17,10 +17,12 @@ export default function BackdropLightbox({ src, alt }: Props) {
     <>
       <Button
         onClick={() => setOpen(true)}
-        className="flex items-center gap-1.5 rounded-md border border-border bg-card/60 px-2.5 py-1.5 text-xs text-muted-foreground transition-colors hover:text-foreground hover:bg-card"
+        variant="outline"
+        size="lg"
+        className="gap-2 transition-all duration-200 active:scale-95"
         aria-label="View backdrop image"
       >
-        <Expand className="size-3.5" />
+        <Expand className="size-4" />
         View backdrop
       </Button>
 

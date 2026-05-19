@@ -1,12 +1,14 @@
 import Link from "next/link"
 import { BookMarked, Star, MessageSquare, ArrowRight, TrendingUp } from "lucide-react"
 import { auth } from "@/lib/auth"
+import { prisma } from "@/lib/db"
 import { tmdbFetch } from "@/lib/tmdb"
 import type { Movie, TvShow, TrendingResponse } from "@/lib/tmdb.types"
 import Navbar from "@/components/navbar"
 import MediaCard from "@/components/movie-card"
 import { buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import { MediaType } from "@/generated/prisma/enums"
 
 const features = [
   {
@@ -36,6 +38,19 @@ export default async function Home() {
   const movies = trendingMovies.results.slice(0, 6)
   const shows = trendingTv.results.slice(0, 6)
 
+  // Fetch watchlist for authenticated users and build a lookup map: `${tmdb_id}:${media_type}` -> watchlist_id
+  let watchlistMap: Map<string, number> = new Map()
+  if (session?.user?.email) {
+    const user = await prisma.user.findUnique({ where: { email: session.user.email } })
+    if (user) {
+      const entries = await prisma.watchlist.findMany({
+        where: { user_id: user.user_id },
+        select: { watchlist_id: true, tmdb_id: true, media_type: true },
+      })
+      watchlistMap = new Map(entries.map((e) => [`${e.tmdb_id}:${e.media_type}`, e.watchlist_id]))
+    }
+  }
+
   return (
     <>
       <Navbar />
@@ -52,9 +67,9 @@ export default async function Home() {
               </p>
             </div>
 
-            <MediaSection title="Trending movies" icon={TrendingUp} items={movies} />
+            <MediaSection title="Trending movies" icon={TrendingUp} items={movies} watchlistMap={watchlistMap} isAuthenticated />
             <div className="mt-10">
-              <MediaSection title="Trending TV shows" icon={TrendingUp} items={shows} />
+              <MediaSection title="Trending TV shows" icon={TrendingUp} items={shows} watchlistMap={watchlistMap} isAuthenticated />
             </div>
           </section>
         ) : (
@@ -122,10 +137,14 @@ function MediaSection({
   title,
   icon: Icon,
   items,
+  watchlistMap = new Map(),
+  isAuthenticated = false,
 }: {
   title: string
   icon: React.ElementType
   items: (Movie | TvShow)[]
+  watchlistMap?: Map<string, number>
+  isAuthenticated?: boolean
 }) {
   return (
     <div>
@@ -134,9 +153,13 @@ function MediaSection({
         <h2 className="text-base font-semibold text-foreground">{title}</h2>
       </div>
       <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
-        {items.map((item) => (
-          <MediaCard key={item.id} item={item} />
-        ))}
+        {items.map((item) => {
+          const mediaType = "title" in item ? MediaType.MOVIE : MediaType.TV
+          const watchlist_id = watchlistMap.get(`${item.id}:${mediaType}`) ?? null
+          return (
+            <MediaCard key={item.id} item={item} watchlist_id={watchlist_id} isAuthenticated={isAuthenticated} />
+          )
+        })}
       </div>
     </div>
   )

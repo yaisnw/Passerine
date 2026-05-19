@@ -3,17 +3,22 @@ import Image from "next/image"
 import { Star } from "lucide-react"
 import { tmdbImage } from "@/lib/tmdb"
 import type { MediaItem } from "@/lib/tmdb.types"
+import { MediaType } from "@/generated/prisma/enums"
+import AddToWatchlistButton from "@/components/add-to-watchlist-button"
 
 interface MediaCardProps {
   item: MediaItem
+  watchlist_id?: number | null
+  isAuthenticated?: boolean
 }
 
-export default function MediaCard({ item }: MediaCardProps) {
+export default function MediaCard({ item, watchlist_id = null, isAuthenticated = false }: MediaCardProps) {
   const title = "title" in item ? item.title : item.name
   const year = ("release_date" in item ? item.release_date : item.first_air_date)?.slice(0, 4)
   const rating = item.vote_average?.toFixed(1)
   const isMovie = "title" in item
   const href = isMovie ? `/media/movie/${item.id}` : `/media/tv/${item.id}`
+  const mediaType = isMovie ? MediaType.MOVIE : MediaType.TV
 
   return (
     <Link href={href} className="group flex flex-col gap-3">
@@ -39,6 +44,20 @@ export default function MediaCard({ item }: MediaCardProps) {
           <Star className="size-3 fill-primary text-primary" />
           <span className="text-xs font-medium text-foreground">{rating}</span>
         </div>
+
+        {/* Watchlist button */}
+        {isAuthenticated && (
+          <div className="absolute top-2 right-2">
+            <AddToWatchlistButton
+              tmdb_id={item.id}
+              media_type={mediaType}
+              title={title}
+              poster_path={item.poster_path ?? ""}
+              watchlist_id={watchlist_id}
+              variant="icon"
+            />
+          </div>
+        )}
       </div>
 
       {/* Info */}
