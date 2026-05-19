@@ -17,7 +17,7 @@ export default async function Navbar() {
           className="flex items-center gap-2 text-foreground transition-opacity hover:opacity-80"
         >
           <Film className="size-5 text-primary" strokeWidth={2} />
-          <span className="text-base font-semibold tracking-tight">Passerine</span>
+          <p className="text-2xl align-center font-semibold tracking-tight leading-none">Passerine</p>
         </Link>
 
         {/* Actions */}

@@ -1,3 +1,4 @@
+import Link from "next/link"
 import Image from "next/image"
 import { Star } from "lucide-react"
 import { tmdbImage } from "@/lib/tmdb"
@@ -11,11 +12,13 @@ export default function MediaCard({ item }: MediaCardProps) {
   const title = "title" in item ? item.title : item.name
   const year = ("release_date" in item ? item.release_date : item.first_air_date)?.slice(0, 4)
   const rating = item.vote_average?.toFixed(1)
+  const isMovie = "title" in item
+  const href = isMovie ? `/media/movie/${item.id}` : `/media/tv/${item.id}`
 
   return (
-    <div className="group flex flex-col gap-3 ">
+    <Link href={href} className="group flex flex-col gap-3">
       {/* Poster */}
-      <div className="relative aspect-2/3 overflow-hidden bg-muted border-2 border-transparent hover:border-primary rounded-xl transition-colors duration-200">
+      <div className="relative aspect-2/3 overflow-hidden bg-muted border-2 border-background hover:border-primary rounded-xl transition-colors duration-200">
         {item.poster_path ? (
           <Image
             src={tmdbImage(item.poster_path, "w342")}
@@ -47,6 +50,6 @@ export default function MediaCard({ item }: MediaCardProps) {
           <p className="text-xs text-muted-foreground">{year}</p>
         )}
       </div>
-    </div>
+    </Link>
   )
 }
