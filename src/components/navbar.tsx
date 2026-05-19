@@ -24,20 +24,22 @@ export default async function Navbar() {
         <div className="flex items-center gap-2">
           {session ? (
             <>
-              {session.user?.image ? (
-                <Image
-                  src={session.user.image}
-                  alt={session.user.name ?? "avatar"}
-                  width={28}
-                  height={28}
-                  className="rounded-full object-cover"
-                />
-              ) : (
-                <UserCircle2 className="size-7 text-muted-foreground" strokeWidth={1.5} />
-              )}
-              <span className="hidden leading-none text-muted-foreground sm:block">
-                {session.user?.name}
-              </span>
+              <Link href="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
+                {session.user?.image ? (
+                  <Image
+                    src={session.user.image}
+                    alt={session.user.name ?? "avatar"}
+                    width={28}
+                    height={28}
+                    className="rounded-full object-cover"
+                  />
+                ) : (
+                  <UserCircle2 className="size-7 text-muted-foreground" strokeWidth={1.5} />
+                )}
+                <span className="hidden leading-none text-muted-foreground sm:block">
+                  {session.user?.name}
+                </span>
+              </Link>
               <form
                 className="flex items-center"
                 action={async () => {
