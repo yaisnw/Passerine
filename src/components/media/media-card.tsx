@@ -4,7 +4,7 @@ import { Star } from "lucide-react"
 import { tmdbImage } from "@/lib/tmdb"
 import type { MediaItem } from "@/lib/tmdb.types"
 import { MediaType } from "@/generated/prisma/enums"
-import AddToWatchlistButton from "@/components/add-to-watchlist-button"
+import WatchlistAddButton from "@/components/watchlist/watchlist-add-button"
 
 interface MediaCardProps {
   item: MediaItem
@@ -48,7 +48,7 @@ export default function MediaCard({ item, watchlist_id = null, isAuthenticated =
         {/* Watchlist button */}
         {isAuthenticated && (
           <div className="absolute top-2 right-2">
-            <AddToWatchlistButton
+            <WatchlistAddButton
               tmdb_id={item.id}
               media_type={mediaType}
               title={title}

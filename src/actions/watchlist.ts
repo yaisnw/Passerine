@@ -5,6 +5,27 @@ import { prisma } from "@/lib/db"
 import { MediaType, WatchStatus } from "@/generated/prisma/enums"
 import { revalidatePath } from "next/cache"
 
+export async function submitReview(watchlist_id: number, rating: number, review_text?: string) {
+  const user = await getUser()
+
+  const entry = await prisma.watchlist.findUnique({
+    where: { watchlist_id, user_id: user.user_id },
+    select: { status: true },
+  })
+
+  if (!entry) throw new Error("Watchlist entry not found")
+  if (entry.status !== WatchStatus.COMPLETED) throw new Error("Media must be completed to review")
+  if (review_text && review_text.length > 1000) throw new Error("Review must be 1000 characters or less")
+
+  await prisma.review.upsert({
+    where: { watchlist_id },
+    create: { watchlist_id, user_id: user.user_id, rating, review_text },
+    update: { rating, review_text },
+  })
+
+  revalidatePath("/")
+}
+
 async function getUser() {
   const session = await auth()
   if (!session?.user?.email) throw new Error("Unauthenticated")

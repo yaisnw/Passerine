@@ -2,9 +2,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Star, Clock, Calendar, Globe, BarChart2, Tv, ArrowLeft } from "lucide-react"
-import Navbar from "@/components/navbar"
-import BackdropLightbox from "@/components/backdrop-lightbox"
-import AddToWatchlistButton from "@/components/add-to-watchlist-button"
+import Navbar from "@/components/layout/navbar"
+import BackdropLightbox from "@/components/media/backdrop-lightbox"
+import WatchlistAddButton from "@/components/watchlist/watchlist-add-button"
+import WriteReviewSheet from "@/components/media/write-review-sheet"
+import MediaReviews from "@/components/media/media-reviews"
 import { getMovieDetails, getMovieCredits, getTvDetails, getTvCredits, tmdbImage } from "@/lib/tmdb"
 import type { MediaType, MovieDetails, TvDetails } from "@/lib/tmdb.types"
 import { auth } from "@/lib/auth"
@@ -13,10 +15,13 @@ import { MediaType as PrismaMediaType } from "@/generated/prisma/enums"
 
 interface Props {
   params: Promise<{ type: string; id: string }>
+  searchParams: Promise<{ page?: string }>
 }
 
-export default async function MediaPage({ params }: Props) {
+export default async function MediaPage({ params, searchParams }: Props) {
   const { type, id } = await params
+  const { page } = await searchParams
+  const currentPage = Math.max(1, Number(page) || 1)
   const mediaId = Number(id)
 
   if (isNaN(mediaId) || (type !== "movie" && type !== "tv")) notFound()
@@ -35,6 +40,10 @@ export default async function MediaPage({ params }: Props) {
   ])
 
   let watchlist_id: number | null = null
+  let watchlistStatus: import("@/generated/prisma/enums").WatchStatus | null = null
+  let existingReview: { rating: number; review_text: string | null } | null = null
+  let currentUserId: number | undefined
+
   if (session?.user?.email) {
     const user = await prisma.user.findUnique({ where: { email: session.user.email } })
     if (user) {
@@ -46,9 +55,12 @@ export default async function MediaPage({ params }: Props) {
             media_type: mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV,
           },
         },
-        select: { watchlist_id: true },
+        select: { watchlist_id: true, status: true, review: { select: { rating: true, review_text: true } } },
       })
+      currentUserId = user.user_id
       watchlist_id = entry?.watchlist_id ?? null
+      watchlistStatus = entry?.status ?? null
+      existingReview = entry?.review ?? null
     }
   }
   if (!media) notFound()
@@ -228,15 +240,25 @@ export default async function MediaPage({ params }: Props) {
               )}
 
               {/* Actions */}
-              <div className="flex flex-wrap gap-2 pt-1">
+              <div className="flex flex-wrap items-start gap-2 pt-1">
                 {session && (
-                  <AddToWatchlistButton
+                  <WatchlistAddButton
                     tmdb_id={mediaId}
                     media_type={mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV}
                     title={title}
                     poster_path={media.poster_path ?? ""}
                     watchlist_id={watchlist_id}
-                    variant="full"
+                    status={watchlistStatus}
+                  />
+                )}
+                {session && ( watchlistStatus === "COMPLETED" || existingReview) && watchlist_id && (
+                  <WriteReviewSheet
+                    watchlistId={watchlist_id}
+                    mediaTitle={title}
+                    existingRating={existingReview?.rating}
+                    existingReview={existingReview?.review_text ?? undefined}
+                    tmdbId={mediaId}
+                    mediaType={mediaType}
                   />
                 )}
                 {media.backdrop_path && (
@@ -246,6 +268,11 @@ export default async function MediaPage({ params }: Props) {
                   />
                 )}
               </div>
+              {session && watchlistStatus !== "COMPLETED" && watchlist_id && (
+                <p className="text-xs text-muted-foreground">
+                  Mark as completed to write a review
+                </p>
+              )}
             </div>
           </div>
 
@@ -269,8 +296,8 @@ export default async function MediaPage({ params }: Props) {
                           alt={member.name}
                           fill
                           loading="lazy"
-                          className="object-cover object-top transition-transform duration-300 group-hover:scale-105"
-                          sizes="120px"
+                          className="object-cover object-center aspect-video transition-transform duration-300 group-hover:scale-105"
+                          sizes="140px"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center text-muted-foreground text-xs">
@@ -304,6 +331,34 @@ export default async function MediaPage({ params }: Props) {
               ))}
             </div>
           </section>
+
+          {/* Your review */}
+          {existingReview && (
+            <section className="mt-14">
+              <h2 className="mb-5 text-base font-semibold text-foreground">Your review</h2>
+              <div className="rounded-xl border border-border bg-card px-4 py-3 flex flex-col gap-2">
+                <div className="flex items-center gap-0.5">
+                  {Array.from({ length: 5 }).map((_, i) => (
+                    <Star
+                      key={i}
+                      className={`size-5 ${i < existingReview.rating ? "fill-primary text-primary" : "text-muted-foreground"}`}
+                    />
+                  ))}
+                  <span className="ml-1.5 text-xs text-muted-foreground">{existingReview.rating} / 5</span>
+                </div>
+                {existingReview.review_text && (
+                  <p className="text-sm leading-relaxed text-foreground/80">{existingReview.review_text}</p>
+                )}
+              </div>
+            </section>
+          )}
+
+          <MediaReviews
+            tmdbId={mediaId}
+            mediaType={mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV}
+            currentUserId={currentUserId}
+            page={currentPage}
+          />
         </div>
       </main>
     </>

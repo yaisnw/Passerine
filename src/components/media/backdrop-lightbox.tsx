@@ -3,7 +3,7 @@
 import { useState } from "react"
 import Image from "next/image"
 import { Expand, X } from "lucide-react"
-import { Button } from "./ui/button"
+import { Button } from "@/components/ui/button"
 
 interface Props {
   src: string

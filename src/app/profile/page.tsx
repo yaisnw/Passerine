@@ -3,20 +3,28 @@ import { redirect } from "next/navigation"
 import { UserCircle2, Bookmark, Star } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
-import Navbar from "@/components/navbar"
-import WatchlistGrid from "@/components/watchlist-grid"
+import Navbar from "@/components/layout/navbar"
+import WatchlistGrid from "@/components/watchlist/watchlist-grid"
+import ProfileReviewsGrid from "@/components/profile/profile-reviews-grid"
+import ProfileTabs from "@/components/profile/profile-tabs"
 import { WatchStatus } from "@/generated/prisma/enums"
 
+interface Props {
+  searchParams: Promise<{ tab?: string }>
+}
 
-export default async function ProfilePage() {
+export default async function ProfilePage({ searchParams }: Props) {
   const session = await auth()
   if (!session?.user?.email) redirect("/login")
+
+  const { tab = "watchlist" } = await searchParams
 
   const user = await prisma.user.findUnique({
     where: { email: session.user.email },
     include: {
       watchlist: {
         orderBy: { added_at: "desc" },
+        include: { review: { select: { rating: true, review_text: true } } },
       },
     },
   })
@@ -24,6 +32,17 @@ export default async function ProfilePage() {
   if (!user) redirect("/login")
 
   const watchlist = user.watchlist
+  const reviewEntries = watchlist
+    .filter((e) => e.review !== null)
+    .map((e) => ({
+      watchlist_id: e.watchlist_id,
+      tmdb_id: e.tmdb_id,
+      media_type: e.media_type,
+      title: e.title,
+      poster_path: e.poster_path,
+      rating: e.review!.rating,
+      review_text: e.review!.review_text,
+    }))
 
   return (
     <>
@@ -52,13 +71,14 @@ export default async function ProfilePage() {
         <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:w-fit md:flex md:gap-6">
           <Stat label="Watchlist" value={watchlist.length} icon={Bookmark} />
           <Stat label="Completed" value={watchlist.filter((e) => e.status === WatchStatus.COMPLETED).length} icon={Star} />
+          <Stat label="Reviews" value={reviewEntries.length} icon={Star} />
         </div>
 
-        {/* Watchlist */}
-        <section>
-          <h2 className="mb-5 text-base font-semibold text-foreground">Watchlist</h2>
-          <WatchlistGrid entries={watchlist} />
-        </section>
+        {/* Tabs */}
+        <ProfileTabs active={tab} />
+
+        {tab === "watchlist" && <WatchlistGrid entries={watchlist} />}
+        {tab === "reviews" && <ProfileReviewsGrid entries={reviewEntries} />}
       </main>
     </>
   )

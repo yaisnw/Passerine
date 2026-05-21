@@ -5,7 +5,8 @@ import Image from "next/image"
 import Link from "next/link"
 import { tmdbImage } from "@/lib/tmdb"
 import { WatchStatus } from "@/generated/prisma/enums"
-import WatchStatusButton from "@/components/watch-status-button"
+import WatchStatusButton from "@/components/watchlist/watch-status-button"
+import WatchlistRemoveButton from "@/components/watchlist/watchlist-remove-button"
 
 interface WatchlistEntry {
   watchlist_id: number
@@ -59,15 +60,18 @@ export default function WatchlistGrid({ entries }: Props) {
                   No image
                 </div>
               )}
-              <WatchStatusButton
-                watchlist_id={entry.watchlist_id}
-                status={entry.status}
+              <WatchlistRemoveButton
+                watchlistId={entry.watchlist_id}
                 onRemove={() => handleRemove(entry.watchlist_id)}
               />
             </div>
-            <p className="truncate text-xs font-medium text-foreground leading-snug group-hover:text-primary transition-colors">
+            <p className="truncate text-sm font-medium text-foreground leading-snug group-hover:text-primary transition-colors">
               {entry.title}
             </p>
+            <WatchStatusButton
+                watchlist_id={entry.watchlist_id}
+                status={entry.status}
+              />
           </Link>
         )
       })}

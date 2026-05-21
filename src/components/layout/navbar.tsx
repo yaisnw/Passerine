@@ -48,19 +48,19 @@ export default async function Navbar() {
                 }}
               >
                 <Button variant="ghost" size="default" type="submit" className="gap-1.5">
-                  <LogOut className="size-3.5" />
+                  <LogOut className="size-6" />
                   Sign out
                 </Button>
               </form>
             </>
           ) : (
             <>
-              <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "sm" }), "gap-1.5")}>
-                <LogIn className="size-3.5" />
+              <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "default" }), "gap-1.5")}>
+                <LogIn className="size-6" />
                 Sign in
               </Link>
-              <Link href="/register" className={cn(buttonVariants({ size: "sm" }), "gap-1.5")}>
-                <UserPlus className="size-3.5" />
+              <Link href="/register" className={cn(buttonVariants({ size: "default" }), "gap-1.5")}>
+                <UserPlus className="size-6" />
                 Get started
               </Link>
             </>
