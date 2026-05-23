@@ -41,7 +41,6 @@ export default function WriteReviewSheet({
   const [text, setText] = useState(existingReview ?? "")
   const [error, setError] = useState<string | null>(null)
   const [isPending, startTransition] = useTransition()
-
   function handleSubmit() {
     if (rating === 0) { setError("Please select a rating"); return }
     setError(null)
@@ -49,8 +48,8 @@ export default function WriteReviewSheet({
       try {
         await submitReview(watchlistId, rating, text || undefined)
         setOpen(false)
-      } catch {
-        setError("Failed to submit review")
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Failed to submit review")
       }
     })
   }

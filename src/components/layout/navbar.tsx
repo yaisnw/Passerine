@@ -4,24 +4,30 @@ import { Film, LogOut, LogIn, UserPlus, UserCircle2 } from "lucide-react"
 import { auth, signOut } from "@/lib/auth"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
+import SearchBar from "@/components/layout/search-bar"
 
 export default async function Navbar() {
   const session = await auth()
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-sm">
-      <nav className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+      <nav className="mx-auto flex h-16 max-w-6xl items-center gap-4 px-6">
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 text-foreground transition-opacity hover:opacity-80"
+          className="flex shrink-0 items-center gap-2 text-foreground transition-opacity hover:opacity-80"
         >
           <Film className="size-5 text-primary" strokeWidth={2} />
-          <p className="text-2xl align-center font-semibold tracking-tight leading-none">Passerine</p>
+          <p className="hidden text-2xl align-center font-semibold tracking-tight leading-none sm:block">Passerine</p>
         </Link>
 
+        {/* Search */}
+        <div className="flex-1">
+          <SearchBar />
+        </div>
+
         {/* Actions */}
-        <div className="flex items-center gap-2">
+        <div className="flex shrink-0 items-center gap-2">
           {session ? (
             <>
               <Link href="/profile" className="flex items-center gap-2 hover:opacity-80 transition-opacity">
