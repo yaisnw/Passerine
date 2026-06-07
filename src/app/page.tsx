@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { BookMarked, Star, MessageSquare, ArrowRight, TrendingUp } from "lucide-react"
+import { BookMarked, Star, MessageSquare, ArrowRight, TrendingUp, ChevronRight } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { tmdbFetch } from "@/lib/tmdb"
@@ -67,9 +67,9 @@ export default async function Home() {
               </p>
             </div>
 
-            <MediaSection title="Trending movies" icon={TrendingUp} items={movies} watchlistMap={watchlistMap} isAuthenticated />
+            <MediaSection title="Trending movies" href="/movies" icon={TrendingUp} items={movies} watchlistMap={watchlistMap} isAuthenticated />
             <div className="mt-10">
-              <MediaSection title="Trending TV shows" icon={TrendingUp} items={shows} watchlistMap={watchlistMap} isAuthenticated />
+              <MediaSection title="Trending TV shows" href="/shows" icon={TrendingUp} items={shows} watchlistMap={watchlistMap} isAuthenticated />
             </div>
           </section>
         ) : (
@@ -123,8 +123,8 @@ export default async function Home() {
 
             {/* Trending preview */}
             <section className="mx-auto w-full max-w-6xl px-6 pb-24 flex flex-col gap-10">
-              <MediaSection title="Trending movies" icon={TrendingUp} items={movies} />
-              <MediaSection title="Trending TV shows" icon={TrendingUp} items={shows} />
+              <MediaSection title="Trending movies" href="/movies" icon={TrendingUp} items={movies} />
+              <MediaSection title="Trending TV shows" href="/shows" icon={TrendingUp} items={shows} />
             </section>
           </>
         )}
@@ -135,12 +135,14 @@ export default async function Home() {
 
 function MediaSection({
   title,
+  href,
   icon: Icon,
   items,
   watchlistMap = new Map(),
   isAuthenticated = false,
 }: {
   title: string
+  href: string
   icon: React.ElementType
   items: (Movie | TvShow)[]
   watchlistMap?: Map<string, number>
@@ -148,9 +150,15 @@ function MediaSection({
 }) {
   return (
     <div>
-      <div className="mb-5 flex items-center gap-2">
-        <Icon className="size-4 text-primary" strokeWidth={2} />
-        <h2 className="text-base font-semibold text-foreground">{title}</h2>
+      <div className="mb-5 flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Icon className="size-4 text-primary" strokeWidth={2} />
+          <h2 className="text-base font-semibold text-foreground">{title}</h2>
+        </div>
+        <Link href={href} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}>
+          View all
+          <ChevronRight className="size-4" />
+        </Link>
       </div>
       <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
         {items.map((item) => {

@@ -67,6 +67,25 @@ export interface SearchResponse {
   page: number
 }
 
+export interface DiscoverResponse<T> {
+  results: T[]
+  total_results: number
+  total_pages: number
+  page: number
+}
+
+export function discoverMovies(page = 1) {
+  return tmdbFetch<DiscoverResponse<import("./tmdb.types").Movie>>(
+    `/discover/movie?sort_by=popularity.desc&page=${page}&include_adult=false`
+  )
+}
+
+export function discoverTv(page = 1) {
+  return tmdbFetch<DiscoverResponse<import("./tmdb.types").TvShow>>(
+    `/discover/tv?sort_by=popularity.desc&page=${page}&include_adult=false`
+  )
+}
+
 export async function searchMulti(query: string, page = 1): Promise<SearchResponse> {
   const encoded = encodeURIComponent(query)
   const [movies, tv] = await Promise.all([

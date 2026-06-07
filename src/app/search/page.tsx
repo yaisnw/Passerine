@@ -3,6 +3,7 @@ import Link from "next/link"
 import { notFound } from "next/navigation"
 import Navbar from "@/components/layout/navbar"
 import { searchMulti, tmdbImage } from "@/lib/tmdb"
+import Pagination from "@/components/ui/pagination"
 
 interface Props {
   searchParams: Promise<{ q?: string; page?: string }>
@@ -18,7 +19,7 @@ export default async function SearchPage({ searchParams }: Props) {
   const data = await searchMulti(query, currentPage)
   
   const results = data.results
-  const totalPages = Math.min(data.total_pages, 20) // TMDB caps at page 1000, we cap at 20 for UX reasons
+  const totalPages = Math.min(data.total_pages, 500)
   return (
     <>
       <Navbar />
@@ -74,27 +75,11 @@ export default async function SearchPage({ searchParams }: Props) {
           </div>
         )}
 
-        {totalPages > 1 && (
-          <div className="mt-10 flex items-center gap-1">
-            {Array.from({ length: totalPages }).map((_, i) => {
-              const p = i + 1
-              const params = new URLSearchParams({ q: query, page: String(p) })
-              return (
-                <Link
-                  key={p}
-                  href={`?${params.toString()}`}
-                  className={`flex size-8 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
-                    p === currentPage
-                      ? "bg-primary text-primary-foreground"
-                      : "border border-border text-muted-foreground hover:text-foreground hover:bg-muted"
-                  }`}
-                >
-                  {p}
-                </Link>
-              )
-            })}
-          </div>
-        )}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          buildHref={(p) => `?${new URLSearchParams({ q: query, page: String(p) }).toString()}`}
+        />
       </main>
     </>
   )
