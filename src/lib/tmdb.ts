@@ -58,6 +58,8 @@ export interface SearchResult {
   poster_path: string | null
   release_date?: string
   first_air_date?: string
+  vote_average?: number
+  popularity?: number
 }
 
 export interface SearchResponse {
@@ -74,15 +76,19 @@ export interface DiscoverResponse<T> {
   page: number
 }
 
-export function discoverMovies(page = 1) {
+export function discoverMovies(page = 1, sortBy = "popularity.desc") {
+  const voteFilter = sortBy.startsWith("vote_average") ? "&vote_count.gte=500" : ""
+  const dateFilter = sortBy.startsWith("primary_release_date") ? `&primary_release_date.lte=${new Date().getFullYear()}-12-31` : ""
   return tmdbFetch<DiscoverResponse<import("./tmdb.types").Movie>>(
-    `/discover/movie?sort_by=popularity.desc&page=${page}&include_adult=false`
+    `/discover/movie?sort_by=${sortBy}&page=${page}&include_adult=false${voteFilter}${dateFilter}`
   )
 }
 
-export function discoverTv(page = 1) {
+export function discoverTv(page = 1, sortBy = "popularity.desc") {
+  const voteFilter = sortBy.startsWith("vote_average") ? "&vote_count.gte=500" : ""
+  const dateFilter = sortBy.startsWith("first_air_date") ? `&first_air_date.lte=${new Date().getFullYear()}-12-31` : ""
   return tmdbFetch<DiscoverResponse<import("./tmdb.types").TvShow>>(
-    `/discover/tv?sort_by=popularity.desc&page=${page}&include_adult=false`
+    `/discover/tv?sort_by=${sortBy}&page=${page}&include_adult=false${voteFilter}${dateFilter}`
   )
 }
 

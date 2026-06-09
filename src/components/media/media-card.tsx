@@ -3,21 +3,24 @@ import Image from "next/image"
 import { Star } from "lucide-react"
 import { tmdbImage } from "@/lib/tmdb"
 import type { MediaItem } from "@/lib/tmdb.types"
+import type { SearchResult } from "@/lib/tmdb"
 import { MediaType } from "@/generated/prisma/enums"
 import WatchlistAddButton from "@/components/watchlist/watchlist-add-button"
 
 interface MediaCardProps {
-  item: MediaItem
+  item: MediaItem | SearchResult
   watchlist_id?: number | null
   isAuthenticated?: boolean
+  showTypeBadge?: boolean
 }
 
-export default function MediaCard({ item, watchlist_id = null, isAuthenticated = false }: MediaCardProps) {
-  const title = "title" in item ? item.title : item.name
-  const year = ("release_date" in item ? item.release_date : item.first_air_date)?.slice(0, 4)
-  const rating = item.vote_average?.toFixed(1)
-  const isMovie = "title" in item
-  const href = isMovie ? `/media/movie/${item.id}` : `/media/tv/${item.id}`
+export default function MediaCard({ item, watchlist_id = null, isAuthenticated = false, showTypeBadge = false }: MediaCardProps) {
+  const title = (item as any).title ?? (item as any).name ?? "Unknown"
+  const year = ((item as any).release_date ?? (item as any).first_air_date)?.slice(0, 4)
+  const rating = (item as any).vote_average?.toFixed(1)
+  const mediaTypeStr: "movie" | "tv" = (item as any).media_type ?? ("title" in item ? "movie" : "tv")
+  const isMovie = mediaTypeStr === "movie"
+  const href = `/media/${mediaTypeStr}/${item.id}`
   const mediaType = isMovie ? MediaType.MOVIE : MediaType.TV
 
   return (
@@ -39,10 +42,19 @@ export default function MediaCard({ item, watchlist_id = null, isAuthenticated =
           </div>
         )}
 
-        {/* Rating badge */}
-        <div className="absolute bottom-2 left-2 flex items-center gap-1 rounded-md bg-background/80 px-1.5 py-0.5 backdrop-blur-sm">
-          <Star className="size-3 fill-primary text-primary" />
-          <span className="text-xs font-medium text-foreground">{rating}</span>
+        {/* Bottom-left badges */}
+        <div className="absolute bottom-2 left-2 flex items-center gap-1">
+          {showTypeBadge && (
+            <span className="rounded-md bg-background/80 px-1.5 py-0.5 text-xs font-medium text-foreground backdrop-blur-sm">
+              {isMovie ? "Movie" : "TV"}
+            </span>
+          )}
+          {rating && (
+            <div className="flex items-center gap-1 rounded-md bg-background/80 px-1.5 py-0.5 backdrop-blur-sm">
+              <Star className="size-3 fill-primary text-primary" />
+              <span className="text-xs font-medium text-foreground">{rating}</span>
+            </div>
+          )}
         </div>
 
         {/* Watchlist button */}

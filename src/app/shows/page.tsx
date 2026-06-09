@@ -2,19 +2,23 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { discoverTv } from "@/lib/tmdb"
 import { MediaType } from "@/generated/prisma/enums"
+import { TMDB_TV_SORT_MAP, type SortOption } from "@/lib/utils"
 import Navbar from "@/components/layout/navbar"
 import MediaCard from "@/components/media/media-card"
 import Pagination from "@/components/ui/pagination"
+import SortSelect from "@/components/ui/sort-select"
 
 interface Props {
-  searchParams: Promise<{ page?: string }>
+  searchParams: Promise<{ page?: string; sort?: string }>
 }
 
 export default async function ShowsPage({ searchParams }: Props) {
-  const { page } = await searchParams
+  const { page, sort } = await searchParams
   const currentPage = Math.max(1, Number(page) || 1)
+  const sortOption = (sort ?? "popularity") as SortOption
+  const sortBy = TMDB_TV_SORT_MAP[sortOption] ?? TMDB_TV_SORT_MAP.popularity
 
-  const [session, data] = await Promise.all([auth(), discoverTv(currentPage)])
+  const [session, data] = await Promise.all([auth(), discoverTv(currentPage, sortBy)])
 
   const totalPages = Math.min(data.total_pages, 500)
 
@@ -34,10 +38,15 @@ export default async function ShowsPage({ searchParams }: Props) {
     <>
       <Navbar />
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
-        <h1 className="mb-1 text-2xl font-semibold text-foreground">TV Shows</h1>
-        <p className="mb-8 text-sm text-muted-foreground">
-          {data.total_results.toLocaleString()} shows available
-        </p>
+        <div className="mb-8 flex items-start justify-between gap-4">
+          <div>
+            <h1 className="mb-1 text-2xl font-semibold text-foreground">TV Shows</h1>
+            <p className="text-sm text-muted-foreground">
+              {data.total_results.toLocaleString()} shows available
+            </p>
+          </div>
+          <SortSelect value={sortOption} />
+        </div>
 
         <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
           {data.results.map((show) => {
@@ -56,7 +65,7 @@ export default async function ShowsPage({ searchParams }: Props) {
         <Pagination
           currentPage={currentPage}
           totalPages={totalPages}
-          buildHref={(p) => `?page=${p}`}
+          buildHref={(p) => `?sort=${sortOption}&page=${p}`}
         />
       </main>
     </>

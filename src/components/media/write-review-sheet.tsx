@@ -75,29 +75,48 @@ export default function WriteReviewSheet({
         <div className="flex flex-col gap-5 px-2 overflow-y-auto">
           {/* Star rating */}
           <div className="flex flex-col gap-2">
-            <span className="text-sm font-medium">Rating</span>
-            <div
-              className="flex gap-1"
-              onMouseLeave={() => setHovered(0)}
-            >
-              {[1, 2, 3, 4, 5].map((n) => (
-                <button
-                  key={n}
-                  type="button"
-                  onClick={() => setRating(n)}
-                  onMouseEnter={() => setHovered(n)}
-                  className="transition-transform hover:scale-110"
-                >
-                  <Star
-                    className={cn(
-                      "size-7 transition-colors",
-                      n <= (hovered || rating)
-                        ? "fill-primary text-primary"
-                        : "text-muted-foreground"
+            <span className="text-sm font-medium">
+              Rating{(hovered || rating) > 0 && (
+                <span className="ml-2 text-muted-foreground font-normal">{hovered || rating} / 10</span>
+              )}
+            </span>
+            <div className="flex gap-1" onMouseLeave={() => setHovered(0)}>
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => {
+                const active = hovered || rating
+                const full = active >= n
+                const half = !full && active >= n - 0.5
+                return (
+                  <button
+                    key={n}
+                    type="button"
+                    className="relative size-6 transition-transform hover:scale-110"
+                    // the ternary operator used in setRating and SetHovered first gets the mouse position in relation to the stars position
+                    //  and both are based on the viewport width.
+                    //  so clientx - rect.left gives us the position of the mouse inside the star.
+                    //  if its less than half the star we show half star and track the state. else full star.
+                    onClick={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      setRating(e.clientX - rect.left < rect.width / 2 ? n - 0.5 : n)
+                    }}
+                    onMouseMove={(e) => {
+                      const rect = e.currentTarget.getBoundingClientRect()
+                      setHovered(e.clientX - rect.left < rect.width / 2 ? n - 0.5 : n)
+                    }}
+                  >
+                    {/* base empty star */}
+                    <Star className="absolute inset-0 size-6 text-muted-foreground" />
+                    {/* filled overlay — full or half */}
+                    {(full || half) && (
+                      <span
+                        className="absolute inset-0 overflow-hidden"
+                        style={{ width: half ? "50%" : "100%" }}
+                      >
+                        <Star className="size-6 fill-primary text-primary" />
+                      </span>
                     )}
-                  />
-                </button>
-              ))}
+                  </button>
+                )
+              })}
             </div>
           </div>
 

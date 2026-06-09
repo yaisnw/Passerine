@@ -234,7 +234,7 @@ export default async function MediaPage({ params, searchParams }: Props) {
 
               {/* Overview */}
               {media.overview && (
-                <p className="max-w-2xl text-sm leading-relaxed text-foreground/80">
+                <p className="max-w-2xl text-sm leading-relaxed text-foreground">
                   {media.overview}
                 </p>
               )}

@@ -67,13 +67,22 @@ export default async function MediaReviews({ tmdbId, mediaType, currentUserId, p
                 <span className="text-lg font-medium text-foreground leading-none">{review.user?.name ?? "User"}</span>
               </div>
               <div className="flex items-center gap-0.5">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Star
-                    key={i}
-                    className={`size-5 ${i < review.rating ? "fill-primary text-primary" : "text-muted-foreground"}`}
-                  />
-                ))}
-                <span className="ml-1.5 text-xs text-muted-foreground">{review.rating} / 5</span>
+                {Array.from({ length: 10 }).map((_, i) => {
+                  const n = i + 1
+                  const full = review.rating >= n
+                  const half = !full && review.rating >= n - 0.5
+                  return (
+                    <span key={i} className="relative size-4">
+                      <Star className="absolute inset-0 size-4 text-muted-foreground" />
+                      {(full || half) && (
+                        <span className="absolute inset-0 overflow-hidden" style={{ width: half ? "50%" : "100%" }}>
+                          <Star className="size-4 fill-primary text-primary" />
+                        </span>
+                      )}
+                    </span>
+                  )
+                })}
+                <span className="ml-1.5 text-xs text-muted-foreground">{review.rating} / 10</span>
               </div>
             </div>
             {review.review_text && (
