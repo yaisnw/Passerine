@@ -16,6 +16,16 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
     async redirect() {
       return "/"
     },
+    async signIn({ user, account }) {
+      if (account?.provider === "google" && user.email) {
+        await prisma.user.upsert({
+          where: { email: user.email },
+          create: { email: user.email, name: user.name ?? "", avatar_url: user.image ?? null },
+          update: {},
+        })
+      }
+      return true
+    },
     async session({ session, token }) {
       if (session.user && token.email) {
         const user = await prisma.user.findUnique({ where: { email: token.email } })

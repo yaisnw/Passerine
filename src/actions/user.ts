@@ -8,8 +8,15 @@ export async function signInWithGoogle() {
   await signIn("google")
 }
 
-export async function signInWithCredentials(email: string, password: string) {
-  await signIn("credentials", { email, password })
+export async function signInWithCredentials(email: string, password: string): Promise<string | null> {
+  try {
+    await signIn("credentials", { email, password })
+    return null
+  } catch (err: unknown) {
+    if ((err as { digest?: string })?.digest?.includes("NEXT_REDIRECT")) throw err
+    const code = (err as { code?: string })?.code
+    return code ?? "Something went wrong. Please try again."
+  }
 }
 
 export async function signOutUser() {
@@ -21,20 +28,17 @@ export async function registerUser(data: {
   email: string
   password: string
   avatar_url?: string
-}) {
-  const existing = await prisma.user.findUnique({ where: { email: data.email } })
-  if (existing) throw new Error("Email already in use")
+}): Promise<string | null> {
+  try {
+    const existing = await prisma.user.findUnique({ where: { email: data.email } })
+    if (existing) return "Email already in use"
 
-  const hashed = await argon2.hash(data.password)
-
-  const user = await prisma.user.create({
-    data: {
-      name: data.name,
-      email: data.email,
-      password: hashed,
-      avatar_url: data.avatar_url ?? "",
-    },
-  })
-
-  return user
+    const hashed = await argon2.hash(data.password)
+    await prisma.user.create({
+      data: { name: data.name, email: data.email, password: hashed, avatar_url: data.avatar_url ?? "" },
+    })
+    return null
+  } catch {
+    return "Something went wrong. Please try again."
+  }
 }

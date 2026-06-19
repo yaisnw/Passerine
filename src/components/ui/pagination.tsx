@@ -31,7 +31,7 @@ export default function Pagination({
     pages.push(1)
     if (start > 2) pages.push("...")
   }
-
+  
   for (let p = start; p <= end; p++) pages.push(p)
 
   if (end < totalPages) {

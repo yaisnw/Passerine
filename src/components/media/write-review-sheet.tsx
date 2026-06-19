@@ -45,12 +45,9 @@ export default function WriteReviewSheet({
     if (rating === 0) { setError("Please select a rating"); return }
     setError(null)
     startTransition(async () => {
-      try {
-        await submitReview(watchlistId, rating, text || undefined)
-        setOpen(false)
-      } catch (err) {
-        setError(err instanceof Error ? err.message : "Failed to submit review")
-      }
+      const error = await submitReview(watchlistId, rating, text || undefined)
+      if (error) setError(error)
+      else setOpen(false)
     })
   }
 

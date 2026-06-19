@@ -29,11 +29,8 @@ export default function WatchStatusButton({ watchlist_id, status }: Props) {
     setError(null)
     startTransition(async () => {
       setOptimisticStatus(next)
-      try {
-        await updateWatchStatus(watchlist_id, next)
-      } catch {
-        setError("Failed to update")
-      }
+      const error = await updateWatchStatus(watchlist_id, next)
+      setError(error)
     })
   }
 

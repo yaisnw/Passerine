@@ -1,7 +1,6 @@
 "use client"
 
 import { useState } from "react"
-import { useSearchParams } from "next/navigation"
 import Link from "next/link"
 import { Eye, EyeOff } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -19,24 +18,20 @@ import { SiGoogle } from "@icons-pack/react-simple-icons"
 import { signInWithCredentials, signInWithGoogle } from "@/actions/user"
 
 export default function LoginPage() {
-  const searchParams = useSearchParams()
-  const error = searchParams.get("error")
+  const [error, setError] = useState<string | null>(null)
   const [pending, setPending] = useState(false)
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
 
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.SubmitEvent<HTMLFormElement>) {
     e.preventDefault()
     const form = e.currentTarget
     const email = (form.elements.namedItem("email") as HTMLInputElement).value
     const password = (form.elements.namedItem("password") as HTMLInputElement).value
-
     setPending(true)
-    try {
-      await signInWithCredentials(email, password)
-    } finally {
-      setPending(false)
-    }
+    const error = await signInWithCredentials(email, password)
+    setError(error)
+    setPending(false)
   }
 
   return (
@@ -58,9 +53,7 @@ export default function LoginPage() {
         <CardContent className="space-y-4">
           {error && (
             <p className="rounded-lg bg-destructive/10 px-3 py-2 text-sm text-destructive text-center">
-              {error === "CredentialsSignin"
-                ? "Invalid email or password."
-                : "Something went wrong. Please try again."}
+              {error}
             </p>
           )}
 

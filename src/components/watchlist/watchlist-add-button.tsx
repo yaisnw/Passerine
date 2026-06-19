@@ -47,11 +47,8 @@ export default function WatchlistAddButton({
     setError(null)
     startTransition(async () => {
       setOptimisticState({ added: true, status: WatchStatus.PLAN_TO_WATCH })
-      try {
-        await addToWatchlist({ tmdb_id, media_type, title, poster_path })
-      } catch {
-        setError("Failed to add")
-      }
+      const error = await addToWatchlist({ tmdb_id, media_type, title, poster_path })
+      setError(error)
     })
   }
 
@@ -61,11 +58,8 @@ export default function WatchlistAddButton({
     setError(null)
     startTransition(async () => {
       setOptimisticState({ added: false, status: null })
-      try {
-        await removeFromWatchlist(watchlist_id!)
-      } catch {
-        setError("Failed to remove")
-      }
+      const error = await removeFromWatchlist(watchlist_id!)
+      setError(error)
     })
   }
 
@@ -74,11 +68,8 @@ export default function WatchlistAddButton({
     setError(null)
     startTransition(async () => {
       setOptimisticState({ added: true, status: next })
-      try {
-        await updateWatchStatus(watchlist_id!, next)
-      } catch {
-        setError("Failed to update")
-      }
+      const error = await updateWatchStatus(watchlist_id!, next)
+      setError(error)
     })
   }
 

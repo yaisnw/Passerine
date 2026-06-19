@@ -32,13 +32,10 @@ export default function RegisterPage() {
 
     setPending(true)
     setError(null)
-    try {
-      await registerUser({ name, email, password })
-      await signInWithCredentials(email, password)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Something went wrong.")
-      setPending(false)
-    }
+    const registerError = await registerUser({ name, email, password })
+    if (registerError) { setError(registerError); setPending(false); return }
+    const signInError = await signInWithCredentials(email, password)
+    if (signInError) { setError(signInError); setPending(false) }
   }
 
   return (
