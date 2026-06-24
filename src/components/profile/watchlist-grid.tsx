@@ -41,12 +41,12 @@ export default function WatchlistGrid({ entries }: Props) {
   }
 
   return (
-    <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8">
+    <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 xl:grid-cols-5">
       {items.map((entry) => {
         const href = `/media/${entry.media_type.toLowerCase()}/${entry.tmdb_id}`
         return (
-          <Link key={entry.watchlist_id} href={href} className="group flex flex-col gap-2">
-            <div className="relative aspect-2/3 overflow-hidden rounded-xl border-2 border-background bg-muted transition-colors duration-200 hover:border-primary">
+          <div key={entry.watchlist_id} className="group flex flex-col gap-2">
+            <Link href={href} className="relative aspect-2/3 w-full overflow-hidden rounded-xl border-2 border-background bg-muted transition-colors duration-200 hover:border-primary block">
               {entry.poster_path ? (
                 <Image
                   src={tmdbImage(entry.poster_path, "w342")}
@@ -64,15 +64,18 @@ export default function WatchlistGrid({ entries }: Props) {
                 watchlistId={entry.watchlist_id}
                 onRemove={() => handleRemove(entry.watchlist_id)}
               />
-            </div>
-            <p className="truncate text-sm font-medium text-foreground leading-snug group-hover:text-primary transition-colors">
+            </Link>
+            <Link href={href} className="truncate text-sm font-medium text-foreground leading-snug group-hover:text-primary transition-colors">
               {entry.title}
-            </p>
+            </Link>
             <WatchStatusButton
-                watchlist_id={entry.watchlist_id}
-                status={entry.status}
-              />
-          </Link>
+              watchlist_id={entry.watchlist_id}
+              status={entry.status}
+              onStatusChange={(next) =>
+                setItems((prev) => prev.map((e) => e.watchlist_id === entry.watchlist_id ? { ...e, status: next } : e))
+              }
+            />
+          </div>
         )
       })}
     </div>

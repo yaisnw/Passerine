@@ -28,12 +28,12 @@ export default function ProfileReviewsGrid({ entries }: Props) {
   }
 
   return (
-    <div className="flex flex-col gap-3 ">
+    <div className="flex flex-col gap-3">
       {entries.map((entry) => {
         const href = `/media/${entry.media_type.toLowerCase()}/${entry.tmdb_id}`
         return (
-          <div key={entry.watchlist_id} className="relative flex gap-4 rounded-xl border border-border bg-card p-3">
-            <Link href={href} className="shrink-0 relative w-16 aspect-2/3 overflow-hidden rounded-lg bg-muted">
+          <div key={entry.watchlist_id} className="flex gap-4 rounded-xl border border-border bg-card p-3">
+            <Link href={href} className="shrink-0 relative w-30 aspect-2/3 overflow-hidden rounded-lg bg-muted">
               <div className="absolute inset-0">
                 {entry.poster_path ? (
                   <Image
@@ -49,10 +49,20 @@ export default function ProfileReviewsGrid({ entries }: Props) {
               </div>
             </Link>
             <div className="flex flex-1 flex-col gap-1.5 min-w-0">
-              <div className="flex items-center gap-2 pr-28">
+              <div className="flex items-start justify-between gap-2">
                 <Link href={href} className="truncate text-xl font-medium text-foreground hover:text-primary transition-colors">
                   {entry.title}
                 </Link>
+                <div className="shrink-0">
+                  <WriteReviewSheet
+                    watchlistId={entry.watchlist_id}
+                    mediaTitle={entry.title}
+                    existingRating={entry.rating}
+                    existingReview={entry.review_text ?? undefined}
+                    tmdbId={entry.tmdb_id}
+                    mediaType={entry.media_type}
+                  />
+                </div>
               </div>
               <div className="flex items-center gap-0.5">
                 {Array.from({ length: 10 }).map((_, i) => {
@@ -74,16 +84,6 @@ export default function ProfileReviewsGrid({ entries }: Props) {
               {entry.review_text && (
                 <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{entry.review_text}</p>
               )}
-            </div>
-            <div className="absolute top-3 right-3">
-              <WriteReviewSheet
-                watchlistId={entry.watchlist_id}
-                mediaTitle={entry.title}
-                existingRating={entry.rating}
-                existingReview={entry.review_text ?? undefined}
-                tmdbId={entry.tmdb_id}
-                mediaType={entry.media_type}
-              />
             </div>
           </div>
         )

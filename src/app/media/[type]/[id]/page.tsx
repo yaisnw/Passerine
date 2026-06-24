@@ -1,12 +1,15 @@
+export const dynamic = "force-dynamic"
+
 import Image from "next/image"
 import Link from "next/link"
 import { notFound } from "next/navigation"
-import { Star, Clock, Calendar, Globe, BarChart2, Tv, ArrowLeft } from "lucide-react"
+import { Star, Clock, Calendar, Globe, BarChart2, Tv } from "lucide-react"
 import Navbar from "@/components/layout/navbar"
 import BackdropLightbox from "@/components/media/backdrop-lightbox"
 import WatchlistAddButton from "@/components/watchlist/watchlist-add-button"
 import WriteReviewSheet from "@/components/media/write-review-sheet"
 import MediaReviews from "@/components/media/media-reviews"
+import BackButton from "@/components/ui/back-button"
 import { getMovieDetails, getMovieCredits, getTvDetails, getTvCredits, tmdbImage } from "@/lib/tmdb"
 import type { MediaType, MovieDetails, TvDetails } from "@/lib/tmdb.types"
 import { auth } from "@/lib/auth"
@@ -94,23 +97,23 @@ export default async function MediaPage({ params, searchParams }: Props) {
     },
     ...(isMovie
       ? [
-          {
-            label: "Budget",
-            value: movieData!.budget > 0
-              ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(movieData!.budget)
-              : "—",
-          },
-          {
-            label: "Revenue",
-            value: movieData!.revenue > 0
-              ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(movieData!.revenue)
-              : "—",
-          },
-        ]
+        {
+          label: "Budget",
+          value: movieData!.budget > 0
+            ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(movieData!.budget)
+            : "—",
+        },
+        {
+          label: "Revenue",
+          value: movieData!.revenue > 0
+            ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", notation: "compact", maximumFractionDigits: 1 }).format(movieData!.revenue)
+            : "—",
+        },
+      ]
       : [
-          { label: "Seasons", value: String(tvData!.number_of_seasons) },
-          { label: "Episodes", value: String(tvData!.number_of_episodes) },
-        ]),
+        { label: "Seasons", value: String(tvData!.number_of_seasons) },
+        { label: "Episodes", value: String(tvData!.number_of_episodes) },
+      ]),
   ]
 
   return (
@@ -135,17 +138,13 @@ export default async function MediaPage({ params, searchParams }: Props) {
 
         {/* Main content */}
         <div className="mx-auto w-full max-w-6xl px-6 pb-24">
-          <Link
-            href="/"
-            className="my-8 inline-flex items-center gap-1.5 text-xl text-foreground hover:text-primary transition-colors"
-          >
-            <ArrowLeft className="size-4" />
-            Back
-          </Link>
+          <div className="my-8">
+            <BackButton />
+          </div>
           <div className="flex flex-col gap-6 sm:flex-row sm:gap-10">
             {/* Poster */}
-            <div className="shrink-0 self-start relative z-10">
-              <div className="relative w-36 aspect-2/3 overflow-hidden rounded-xl border-2 border-border bg-muted shadow-2xl sm:w-48">
+            <div className="shrink-0 self-start relative z-10 mx-auto sm:mx-0">
+              <div className="relative w-40 aspect-2/3 overflow-hidden rounded-xl border-2 border-border bg-muted shadow-2xl sm:w-48">
                 {media.poster_path ? (
                   <Image
                     src={tmdbImage(media.poster_path, "w342")}
@@ -168,7 +167,7 @@ export default async function MediaPage({ params, searchParams }: Props) {
               {/* Title + tagline */}
               <div>
                 <div className="mb-1.5 flex items-center gap-2">
-                  {!isMovie && <Tv className="size-4 text-muted-foreground" />}
+                  {!isMovie && <Tv className="size-4 text-muted-foreground" strokeWidth={1.75} />}
                   <h1 className="text-3xl font-semibold tracking-tight text-foreground sm:text-4xl">
                     {title}
                   </h1>
@@ -183,25 +182,25 @@ export default async function MediaPage({ params, searchParams }: Props) {
               {/* Meta row */}
               <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-muted-foreground">
                 <span className="flex items-center gap-1.5">
-                  <Star className="size-3.5 fill-primary text-primary" />
-                  <span className="font-medium text-foreground">{rating}</span>
+                  <Star className="size-4 fill-primary text-primary" strokeWidth={1.75} />
+                  <span className="font-medium text-foreground">{rating.includes("0") ? "N/A" : rating}</span>
                   <span>({media.vote_count.toLocaleString()} votes)</span>
                 </span>
                 {year && (
                   <span className="flex items-center gap-1.5">
-                    <Calendar className="size-3.5" />
-                    {year}
+                    <Calendar className="size-4" strokeWidth={1.75} />
+                    {date >= new Date().toISOString() ? "Unreleased" : year}
                   </span>
                 )}
                 {runtime && (
                   <span className="flex items-center gap-1.5">
-                    <Clock className="size-3.5" />
+                    <Clock className="size-4" strokeWidth={1.75} />
                     {runtime}
                   </span>
                 )}
                 {media.status && (
                   <span className="flex items-center gap-1.5">
-                    <BarChart2 className="size-3.5" />
+                    <BarChart2 className="size-4" strokeWidth={1.75} />
                     {media.status}
                   </span>
                 )}
@@ -212,7 +211,7 @@ export default async function MediaPage({ params, searchParams }: Props) {
                     rel="noopener noreferrer"
                     className="flex items-center gap-1.5 text-foreground hover:text-primary transition-colors"
                   >
-                    <Globe className="size-3.5" />
+                    <Globe className="size-4" strokeWidth={1.75} />
                     Watch here
                   </a>
                 )}
@@ -251,7 +250,7 @@ export default async function MediaPage({ params, searchParams }: Props) {
                     status={watchlistStatus}
                   />
                 )}
-                {session && ( watchlistStatus === "COMPLETED" || existingReview) && watchlist_id && (
+                {session && (watchlistStatus === "COMPLETED" || existingReview) && watchlist_id && (
                   <WriteReviewSheet
                     watchlistId={watchlist_id}
                     mediaTitle={title}
@@ -338,13 +337,22 @@ export default async function MediaPage({ params, searchParams }: Props) {
               <h2 className="mb-5 text-base font-semibold text-foreground">Your review</h2>
               <div className="rounded-xl border border-border bg-card px-4 py-3 flex flex-col gap-2">
                 <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 5 }).map((_, i) => (
-                    <Star
-                      key={i}
-                      className={`size-5 ${i < existingReview.rating ? "fill-primary text-primary" : "text-muted-foreground"}`}
-                    />
-                  ))}
-                  <span className="ml-1.5 text-xs text-muted-foreground">{existingReview.rating} / 5</span>
+                  {Array.from({ length: 10 }).map((_, i) => {
+                    const n = i + 1
+                    const full = existingReview.rating >= n
+                    const half = !full && existingReview.rating >= n - 0.5
+                    return (
+                      <span key={i} className="relative size-5">
+                        <Star className="absolute inset-0 size-5 text-muted-foreground" />
+                        {(full || half) && (
+                          <span className="absolute inset-0 overflow-hidden" style={{ width: half ? "50%" : "100%" }}>
+                            <Star className="size-5 fill-primary text-primary" />
+                          </span>
+                        )}
+                      </span>
+                    )
+                  })}
+                  <span className="ml-1.5 text-xs text-muted-foreground">{existingReview.rating} / 10</span>
                 </div>
                 {existingReview.review_text && (
                   <p className="text-sm leading-relaxed text-foreground/80">{existingReview.review_text}</p>

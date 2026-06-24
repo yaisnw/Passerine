@@ -15,10 +15,10 @@ interface MediaCardProps {
 }
 
 export default function MediaCard({ item, watchlist_id = null, isAuthenticated = false, showTypeBadge = false }: MediaCardProps) {
-  const title = (item as any).title ?? (item as any).name ?? "Unknown"
-  const year = ((item as any).release_date ?? (item as any).first_air_date)?.slice(0, 4)
-  const rating = (item as any).vote_average?.toFixed(1)
-  const mediaTypeStr: "movie" | "tv" = (item as any).media_type ?? ("title" in item ? "movie" : "tv")
+  const mediaTypeStr: "movie" | "tv" = item.media_type ?? ("title" in item ? "movie" : "tv")
+  const title = "title" in item ? (item.title ?? "Unknown") : (item.name ?? "Unknown")
+  const year = ("release_date" in item ? item.release_date : item.first_air_date)?.slice(0, 4)
+  const rating = item.vote_average?.toFixed(1)
   const isMovie = mediaTypeStr === "movie"
   const href = `/media/${mediaTypeStr}/${item.id}`
   const mediaType = isMovie ? MediaType.MOVIE : MediaType.TV
@@ -52,7 +52,7 @@ export default function MediaCard({ item, watchlist_id = null, isAuthenticated =
           {rating && (
             <div className="flex items-center gap-1 rounded-md bg-background/80 px-1.5 py-0.5 backdrop-blur-sm">
               <Star className="size-3 fill-primary text-primary" />
-              <span className="text-xs font-medium text-foreground">{rating}</span>
+              <span className="text-xs font-medium text-foreground">{rating.includes("0") ? "N/A" : rating}</span>
             </div>
           )}
         </div>

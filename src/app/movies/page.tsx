@@ -4,6 +4,7 @@ import { discoverMovies } from "@/lib/tmdb"
 import { MediaType } from "@/generated/prisma/enums"
 import { TMDB_SORT_MAP, type SortOption } from "@/lib/utils"
 import Navbar from "@/components/layout/navbar"
+import BackButton from "@/components/ui/back-button"
 import MediaCard from "@/components/media/media-card"
 import Pagination from "@/components/ui/pagination"
 import SortSelect from "@/components/ui/sort-select"
@@ -38,7 +39,8 @@ export default async function MoviesPage({ searchParams }: Props) {
     <>
       <Navbar />
       <main className="mx-auto w-full max-w-6xl px-6 py-10">
-        <div className="mb-8 flex items-start justify-between gap-4">
+        <BackButton />
+        <div className="mb-8 flex items-end justify-between gap-4">
           <div>
             <h1 className="mb-1 text-2xl font-semibold text-foreground">Movies</h1>
             <p className="text-sm text-muted-foreground">
@@ -66,6 +68,7 @@ export default async function MoviesPage({ searchParams }: Props) {
           currentPage={currentPage}
           totalPages={totalPages}
           buildHref={(p) => `?sort=${sortOption}&page=${p}`}
+          
         />
       </main>
     </>

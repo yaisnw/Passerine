@@ -20,7 +20,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       if (account?.provider === "google" && user.email) {
         await prisma.user.upsert({
           where: { email: user.email },
-          create: { email: user.email, name: user.name ?? "", avatar_url: user.image ?? null },
+          create: { email: user.email, name: user.name ?? "", avatar_url: user.image ?? "" },
           update: {},
         })
       }

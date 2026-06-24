@@ -13,13 +13,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-
 interface Props {
   watchlist_id: number
   status: WatchStatus
+  onStatusChange?: (next: WatchStatus) => void
 }
 
-export default function WatchStatusButton({ watchlist_id, status }: Props) {
+export default function WatchStatusButton({ watchlist_id, status, onStatusChange }: Props) {
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(status)
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
@@ -29,8 +29,12 @@ export default function WatchStatusButton({ watchlist_id, status }: Props) {
     setError(null)
     startTransition(async () => {
       setOptimisticStatus(next)
-      const error = await updateWatchStatus(watchlist_id, next)
-      setError(error)
+      const err = await updateWatchStatus(watchlist_id, next)
+      if (err) {
+        setError(err)
+      } else {
+        onStatusChange?.(next)
+      }
     })
   }
 
@@ -44,9 +48,8 @@ export default function WatchStatusButton({ watchlist_id, status }: Props) {
       <DropdownMenu>
         <DropdownMenuTrigger
           disabled={isPending}
-          onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
           className={cn(
-            "flex w-full cursor-pointer items-center justify-center gap-1 px-2 py-1.5 text-xs font-semibold backdrop-blur-sm transition-opacity hover:opacity-90 focus:outline-none",
+            "flex w-full cursor-pointer items-center justify-center gap-1 px-2 py-1.5 text-sm font-semibold backdrop-blur-sm transition-opacity hover:opacity-90 focus:outline-none",
             statusColors[optimisticStatus]
           )}
         >

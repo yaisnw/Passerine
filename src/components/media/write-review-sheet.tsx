@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useTransition } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { Star } from "lucide-react"
 import { submitReview } from "@/actions/watchlist"
 import { Button } from "@/components/ui/button"
@@ -34,6 +34,7 @@ export default function WriteReviewSheet({
   mediaType,
 }: Props) {
   const pathname = usePathname()
+  const router = useRouter()
   const isMediaPage = pathname.startsWith("/media/")
   const [open, setOpen] = useState(false)
   const [rating, setRating] = useState(existingRating ?? 0)
@@ -47,14 +48,14 @@ export default function WriteReviewSheet({
     startTransition(async () => {
       const error = await submitReview(watchlistId, rating, text || undefined)
       if (error) setError(error)
-      else setOpen(false)
+      else { setOpen(false); router.refresh() }
     })
   }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger render={<Button variant="outline" size="lg" className="gap-2" />}>
-        <Star className="size-4" />
+        <Star className="size-5" strokeWidth={1.75} />
         {existingRating ? "Edit review" : "Write a review"}
       </DialogTrigger>
       <DialogContent className="flex flex-col max-h-[90vh]">

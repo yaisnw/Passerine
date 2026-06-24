@@ -38,7 +38,12 @@ export default async function MediaReviews({ tmdbId, mediaType, currentUserId, p
     prisma.review.count({ where }),
   ])
 
-  if (total === 0) return null
+  if (total === 0) return (
+    <section className="mt-14">
+      <h2 className="mb-5 text-base font-semibold text-foreground">Reviews</h2>
+      <p className="text-sm text-muted-foreground">No reviews yet. Be the first to write one.</p>
+    </section>
+  )
 
   const totalPages = Math.ceil(total / PER_PAGE)
 
@@ -62,7 +67,7 @@ export default async function MediaReviews({ tmdbId, mediaType, currentUserId, p
                     className="rounded-full object-cover"
                   />
                 ) : (
-                  <UserCircle2 className="size-8 text-muted-foreground" strokeWidth={1.5} />
+                  <UserCircle2 className="size-8 text-muted-foreground" strokeWidth={1.75} />
                 )}
                 <span className="text-lg font-medium text-foreground leading-none">{review.user?.name ?? "User"}</span>
               </div>

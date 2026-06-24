@@ -95,7 +95,7 @@ export default async function Home() {
               <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
                 <Link href="/register" className={cn(buttonVariants({ size: "lg" }), "gap-2")}>
                   Get started free
-                  <ArrowRight className="size-4" />
+                  <ArrowRight className="size-5" strokeWidth={1.75} />
                 </Link>
                 <Link href="/login" className={buttonVariants({ size: "lg", variant: "outline" })}>
                   Sign in
@@ -152,15 +152,15 @@ function MediaSection({
     <div>
       <div className="mb-5 flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Icon className="size-4 text-primary" strokeWidth={2} />
+          <Icon className="size-4 text-primary" strokeWidth={1.75} />
           <h2 className="text-base font-semibold text-foreground">{title}</h2>
         </div>
         <Link href={href} className={cn(buttonVariants({ variant: "outline", size: "sm" }), "gap-1.5")}>
           View all
-          <ChevronRight className="size-4" />
+          <ChevronRight className="size-4" strokeWidth={1.75} />
         </Link>
       </div>
-      <div className="grid grid-cols-3 gap-4 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-6">
         {items.map((item) => {
           const mediaType = "title" in item ? MediaType.MOVIE : MediaType.TV
           const watchlist_id = watchlistMap.get(`${item.id}:${mediaType}`) ?? null

@@ -1,10 +1,13 @@
+export const dynamic = "force-dynamic"
+
 import Image from "next/image"
 import { redirect } from "next/navigation"
-import { UserCircle2, Bookmark, Star } from "lucide-react"
+import { UserCircle2, Bookmark, Star, Pen } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import Navbar from "@/components/layout/navbar"
-import WatchlistGrid from "@/components/watchlist/watchlist-grid"
+import BackButton from "@/components/ui/back-button"
+import WatchlistGrid from "@/components/profile/watchlist-grid"
 import ProfileReviewsGrid from "@/components/profile/profile-reviews-grid"
 import ProfileTabs from "@/components/profile/profile-tabs"
 import { WatchStatus } from "@/generated/prisma/enums"
@@ -47,7 +50,8 @@ export default async function ProfilePage({ searchParams }: Props) {
   return (
     <>
       <Navbar />
-      <main className="mx-auto w-full max-w-6xl px-6 py-12">
+      <main className="mx-auto w-full max-w-6xl px-6 ">
+        <BackButton />
         {/* Profile header */}
         <div className="mb-10 flex items-center gap-5">
           {session.user.image ? (
@@ -59,7 +63,7 @@ export default async function ProfilePage({ searchParams }: Props) {
               className="rounded-full object-cover"
             />
           ) : (
-            <UserCircle2 className="size-16 text-muted-foreground" strokeWidth={1.25} />
+            <UserCircle2 className="size-16 text-muted-foreground" strokeWidth={1.75} />
           )}
           <div>
             <h1 className="text-2xl font-semibold tracking-tight text-foreground">{user.name}</h1>
@@ -68,10 +72,10 @@ export default async function ProfilePage({ searchParams }: Props) {
         </div>
 
         {/* Stats */}
-        <div className="mb-10 grid grid-cols-2 gap-4 sm:grid-cols-3 md:w-fit md:flex md:gap-6">
+        <div className="mb-10 grid grid-cols-3 gap-4 sm:grid-cols-3 md:w-fit md:flex md:gap-6">
           <Stat label="Watchlist" value={watchlist.length} icon={Bookmark} />
           <Stat label="Completed" value={watchlist.filter((e) => e.status === WatchStatus.COMPLETED).length} icon={Star} />
-          <Stat label="Reviews" value={reviewEntries.length} icon={Star} />
+          <Stat label="Reviews" value={reviewEntries.length} icon={Pen} />
         </div>
 
         {/* Tabs */}
@@ -86,12 +90,14 @@ export default async function ProfilePage({ searchParams }: Props) {
 
 function Stat({ label, value, icon: Icon }: { label: string; value: number; icon: React.ElementType }) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border bg-card px-5 py-4">
-      <div className="flex size-9 items-center justify-center rounded-lg bg-primary/10">
-        <Icon className="size-4 text-primary" strokeWidth={1.75} />
+    <div className="flex flex-col justify-center items-center gap- rounded-xl border border-border bg-card px-5 py-4">
+      <div className="flex gap-4 items-center justify-center">
+        <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
+          <Icon className="size-5  text-primary" strokeWidth={1.75} />
+        </div>
+        <p className="text-xl size-5 text-center font-semibold leading-none text-foreground">{value}</p>
       </div>
       <div>
-        <p className="text-xl font-semibold leading-none text-foreground">{value}</p>
         <p className="mt-0.5 text-xs text-muted-foreground">{label}</p>
       </div>
     </div>

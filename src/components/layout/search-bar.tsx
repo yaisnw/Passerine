@@ -70,9 +70,9 @@ export default function SearchBar() {
       <form onSubmit={handleSubmit}>
         <div className="relative">
           {isPending ? (
-            <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground animate-spin" />
+            <Loader2 className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground animate-spin" strokeWidth={1.75} />
           ) : (
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" strokeWidth={1.75} />
           )}
           <Input
             value={query}

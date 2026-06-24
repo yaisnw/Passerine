@@ -1,8 +1,8 @@
 import { WatchStatus } from "@/generated/prisma/enums"
 
 export const statusColors: Record<WatchStatus, string> = {
-  PLAN_TO_WATCH: "bg-accent/70 text-white",
-  WATCHING: "bg-primary text-white",
+  PLAN_TO_WATCH: "bg-primary text-white",
+  WATCHING: "bg-accent/80 text-white",
   COMPLETED: "bg-green-300 text-black",
   DROPPED: "bg-destructive text-white",
 }

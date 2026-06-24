@@ -25,7 +25,7 @@ export default function ProfileTabs({ active }: { active: string }) {
           key={tab.value}
           onClick={() => handleTab(tab.value)}
           className={cn(
-            "px-4 py-2 text-sm font-medium transition-colors border-b-2 -mb-px cursor-pointer",
+            "px-4 py-2 text-md font-medium transition-colors border-b-2 -mb-px cursor-pointer",
             active === tab.value
               ? "border-primary text-foreground"
               : "border-transparent text-muted-foreground hover:text-foreground"

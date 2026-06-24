@@ -7,28 +7,16 @@ datasource db {
   provider = "postgresql"
 }
 
-enum MediaType {
-  MOVIE
-  TV
-}
-
-enum WatchStatus {
-  PLAN_TO_WATCH
-  WATCHING
-  COMPLETED
-  DROPPED
-}
-
 model User {
   user_id    Int         @id @default(autoincrement())
   name       String      @unique
   email      String      @unique
-  password   String?
   avatar_url String
   created_at DateTime    @default(now())
   updated_at DateTime    @updatedAt
-  watchlist  Watchlist[]
+  password   String?
   reviews    Review[]
+  watchlist  Watchlist[]
 }
 
 model Watchlist {
@@ -42,8 +30,8 @@ model Watchlist {
   favorite     Boolean     @default(false)
   added_at     DateTime    @default(now())
   watched_at   DateTime?
-  user         User        @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
   review       Review?
+  user         User        @relation(fields: [user_id], references: [user_id], onDelete: Cascade)
 
   @@unique([user_id, tmdb_id, media_type])
   @@index([user_id, status])
@@ -56,6 +44,18 @@ model Review {
   rating       Float
   review_text  String?
   reviewed_at  DateTime   @default(now())
+  user         User?      @relation(fields: [user_id], references: [user_id])
   watchlist    Watchlist? @relation(fields: [watchlist_id], references: [watchlist_id], onDelete: Cascade)
-  user         User?      @relation(fields: [user_id], references: [user_id], onDelete: SetNull)
+}
+
+enum MediaType {
+  MOVIE
+  TV
+}
+
+enum WatchStatus {
+  PLAN_TO_WATCH
+  WATCHING
+  COMPLETED
+  DROPPED
 }

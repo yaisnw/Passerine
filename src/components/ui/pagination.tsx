@@ -43,24 +43,24 @@ export default function Pagination({
   const nextPage = currentPage < totalPages ? currentPage + 1 : null
 
   return (
-    <div className="mt-10 flex items-center gap-1">
+    <div className="mt-10 mx-auto flex justify-center items-center gap-1">
       <Link
         href={prevPage ? buildHref(prevPage) : "#"}
         aria-disabled={!prevPage}
-        className={`flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors ${
+        className={`flex size-10 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors sm:size-8 ${
           prevPage
             ? "hover:bg-muted hover:text-foreground"
             : "pointer-events-none opacity-40"
         }`}
       >
-        <ChevronLeft className="size-4" />
+        <ChevronLeft className="size-4" strokeWidth={1.75} />
       </Link>
 
       {pages.map((p, i) =>
         p === "..." ? (
           <span
             key={`ellipsis-${i}`}
-            className="flex size-8 items-center justify-center text-sm text-muted-foreground"
+            className="flex size-10 items-center justify-center text-sm text-muted-foreground sm:size-8"
           >
             …
           </span>
@@ -68,7 +68,7 @@ export default function Pagination({
           <Link
             key={p}
             href={buildHref(p)}
-            className={`flex size-8 items-center justify-center rounded-lg text-sm font-medium transition-colors ${
+            className={`flex size-10 items-center justify-center rounded-lg text-sm font-medium transition-colors sm:size-8 ${
               p === currentPage
                 ? "bg-primary text-primary-foreground"
                 : "border border-border text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -82,13 +82,13 @@ export default function Pagination({
       <Link
         href={nextPage ? buildHref(nextPage) : "#"}
         aria-disabled={!nextPage}
-        className={`flex size-8 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors ${
+        className={`flex size-10 items-center justify-center rounded-lg border border-border text-muted-foreground transition-colors sm:size-8 ${
           nextPage
             ? "hover:bg-muted hover:text-foreground"
             : "pointer-events-none opacity-40"
         }`}
       >
-        <ChevronRight className="size-4" />
+        <ChevronRight className="size-4" strokeWidth={1.75} />
       </Link>
     </div>
   )

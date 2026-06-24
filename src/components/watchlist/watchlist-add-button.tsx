@@ -83,7 +83,7 @@ export default function WatchlistAddButton({
         variant={optimisticState.added ? "default" : "outline"}
         aria-label={optimisticState.added ? "Remove from watchlist" : "Add to watchlist"}
         className={cn(
-          "size-9 transition-all duration-200 active:scale-95",
+          "size-9 transition-all duration-200 active:scale-95 border border-foreground/20",
           !optimisticState.added && "bg-background/70 backdrop-blur-sm"
         )}
       >
@@ -108,7 +108,7 @@ export default function WatchlistAddButton({
             size="lg"
             className="gap-2 rounded-r-none active:scale-95 "
           >
-            <Bookmark className="size-4" />
+            <Bookmark className="size-5" strokeWidth={1.75} />
             Add to watchlist
           </Button>
           <DropdownMenu>
@@ -121,7 +121,7 @@ export default function WatchlistAddButton({
                 />
               }
             >
-              <ChevronDown className="size-4" />
+              <ChevronDown className="size-4" strokeWidth={1.75} />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="min-w-40">
               {statuses.map((s) => (
@@ -153,11 +153,11 @@ export default function WatchlistAddButton({
           disabled={isPending}
           size="lg"
           className={cn(
-            "gap-2 rounded-r-none border border-r-0 active:scale-95 hover:bg-secondary hover:text-black",
+            "gap-2 rounded-r-none border border-r-0 active:scale-95  hover:text-foreground",
             optimisticState.status ? statusColors[optimisticState.status] : ""
           )}
         >
-          <Bookmark className="size-4 fill-current " />
+          <Bookmark className="size-5 fill-current" strokeWidth={1.75} />
           {currentLabel}
         </Button>
         <DropdownMenu>
@@ -167,13 +167,13 @@ export default function WatchlistAddButton({
                 disabled={isPending}
                 size="lg"
                 className={cn(
-                  "rounded-l-none border px-2.5 hover:bg-secondary hover:text-black",
+                  "rounded-l-none border px-2.5 hover:text-foreground",
                   optimisticState.status ? statusColors[optimisticState.status] : ""
                 )}
               />
             }
           >
-            <ChevronDown className="size-4" />
+            <ChevronDown className="size-4" strokeWidth={1.75} />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="min-w-40">
             {statuses.map((s) => (

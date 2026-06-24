@@ -24,7 +24,7 @@ export async function submitReview(watchlist_id: number, rating: number, review_
       update: { rating, review_text },
     })
 
-    revalidatePath("/")
+    revalidatePath("/", "layout")
     return null
   } catch {
     return "Something went wrong. Please try again."
@@ -52,7 +52,7 @@ export async function addToWatchlist(data: {
       create: { user_id: user.user_id, tmdb_id: data.tmdb_id, media_type: data.media_type, title: data.title, poster_path: data.poster_path, status: WatchStatus.PLAN_TO_WATCH },
       update: {},
     })
-    revalidatePath("/")
+    revalidatePath("/", "layout")
     return null
   } catch {
     return "Failed to add to watchlist"
@@ -63,7 +63,7 @@ export async function removeFromWatchlist(watchlist_id: number): Promise<string 
   try {
     const user = await getUser()
     await prisma.watchlist.delete({ where: { watchlist_id, user_id: user.user_id } })
-    revalidatePath("/")
+    revalidatePath("/", "layout")
     return null
   } catch {
     return "Failed to remove from watchlist"
@@ -74,7 +74,7 @@ export async function updateWatchStatus(watchlist_id: number, status: WatchStatu
   try {
     const user = await getUser()
     await prisma.watchlist.update({ where: { watchlist_id, user_id: user.user_id }, data: { status } })
-    revalidatePath("/")
+    revalidatePath("/", "layout")
     return null
   } catch {
     return "Failed to update status"
@@ -87,7 +87,7 @@ export async function toggleFavorite(watchlist_id: number): Promise<string | nul
     const entry = await prisma.watchlist.findUnique({ where: { watchlist_id } })
     if (!entry || entry.user_id !== user.user_id) return "Not found"
     await prisma.watchlist.update({ where: { watchlist_id }, data: { favorite: !entry.favorite } })
-    revalidatePath("/")
+    revalidatePath("/", "layout")
     return null
   } catch {
     return "Failed to update"
