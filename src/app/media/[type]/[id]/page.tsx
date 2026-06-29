@@ -1,7 +1,6 @@
 export const dynamic = "force-dynamic"
 
 import Image from "next/image"
-import Link from "next/link"
 import { notFound } from "next/navigation"
 import { Star, Clock, Calendar, Globe, BarChart2, Tv } from "lucide-react"
 import Navbar from "@/components/layout/navbar"
@@ -246,6 +245,7 @@ export default async function MediaPage({ params, searchParams }: Props) {
                     media_type={mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV}
                     title={title}
                     poster_path={media.poster_path ?? ""}
+                    tmdb_rating={media.vote_average ?? undefined}
                     watchlist_id={watchlist_id}
                     status={watchlistStatus}
                   />

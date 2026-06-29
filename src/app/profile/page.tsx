@@ -13,28 +13,42 @@ import ProfileTabs from "@/components/profile/profile-tabs"
 import { WatchStatus } from "@/generated/prisma/enums"
 
 interface Props {
-  searchParams: Promise<{ tab?: string }>
+  searchParams: Promise<{ tab?: string; status?: string; sort?: string }>
 }
 
 export default async function ProfilePage({ searchParams }: Props) {
   const session = await auth()
   if (!session?.user?.email) redirect("/login")
 
-  const { tab = "watchlist" } = await searchParams
+  const { tab = "watchlist", status, sort = "added_at" } = await searchParams
 
-  const user = await prisma.user.findUnique({
-    where: { email: session.user.email },
-    include: {
-      watchlist: {
-        orderBy: { added_at: "desc" },
-        include: { review: { select: { rating: true, review_text: true } } },
-      },
-    },
-  })
+  const statusFilter = Object.values(WatchStatus).includes(status as WatchStatus)
+    ? (status as WatchStatus)
+    : undefined
 
+  const orderByMap = {
+    title: { title: "asc" as const },
+    tmdb_rating: { tmdb_rating: "desc" as const },
+    added_at: { added_at: "desc" as const },
+  }
+
+  const orderBy = orderByMap[sort as keyof typeof orderByMap] ?? orderByMap.added_at
+
+
+  const user = await prisma.user.findUnique({ where: { email: session.user.email } })
   if (!user) redirect("/login")
 
-  const watchlist = user.watchlist
+  const [watchlist, totalCount, completedCount, reviewCount] = await Promise.all([
+    prisma.watchlist.findMany({
+      where: { user_id: user.user_id, ...(statusFilter ? { status: statusFilter } : {}) },
+      orderBy,
+      include: { review: { select: { rating: true, review_text: true } } },
+    }),
+    prisma.watchlist.count({ where: { user_id: user.user_id } }),
+    prisma.watchlist.count({ where: { user_id: user.user_id, status: WatchStatus.COMPLETED } }),
+    prisma.review.count({ where: { user_id: user.user_id } }),
+  ])
+
   const reviewEntries = watchlist
     .filter((e) => e.review !== null)
     .map((e) => ({
@@ -73,15 +87,15 @@ export default async function ProfilePage({ searchParams }: Props) {
 
         {/* Stats */}
         <div className="mb-10 grid grid-cols-3 gap-4 sm:grid-cols-3 md:w-fit md:flex md:gap-6">
-          <Stat label="Watchlist" value={watchlist.length} icon={Bookmark} />
-          <Stat label="Completed" value={watchlist.filter((e) => e.status === WatchStatus.COMPLETED).length} icon={Star} />
-          <Stat label="Reviews" value={reviewEntries.length} icon={Pen} />
+          <Stat label="Watchlist" value={totalCount} icon={Bookmark} />
+          <Stat label="Completed" value={completedCount} icon={Star} />
+          <Stat label="Reviews" value={reviewCount} icon={Pen} />
         </div>
 
         {/* Tabs */}
         <ProfileTabs active={tab} />
 
-        {tab === "watchlist" && <WatchlistGrid entries={watchlist} />}
+        {tab === "watchlist" && <WatchlistGrid entries={watchlist} activeStatus={status} activeSort={sort} />}
         {tab === "reviews" && <ProfileReviewsGrid entries={reviewEntries} />}
       </main>
     </>

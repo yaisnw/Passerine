@@ -65,6 +65,7 @@ export default function MediaCard({ item, watchlist_id = null, isAuthenticated =
               media_type={mediaType}
               title={title}
               poster_path={item.poster_path ?? ""}
+              tmdb_rating={item.vote_average ?? undefined}
               watchlist_id={watchlist_id}
               variant="icon"
             />

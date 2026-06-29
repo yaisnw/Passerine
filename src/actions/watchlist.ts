@@ -44,13 +44,14 @@ export async function addToWatchlist(data: {
   media_type: MediaType
   title: string
   poster_path: string
+  tmdb_rating?: number
 }): Promise<string | null> {
   try {
     const user = await getUser()
     await prisma.watchlist.upsert({
       where: { user_id_tmdb_id_media_type: { user_id: user.user_id, tmdb_id: data.tmdb_id, media_type: data.media_type } },
-      create: { user_id: user.user_id, tmdb_id: data.tmdb_id, media_type: data.media_type, title: data.title, poster_path: data.poster_path, status: WatchStatus.PLAN_TO_WATCH },
-      update: {},
+      create: { user_id: user.user_id, tmdb_id: data.tmdb_id, media_type: data.media_type, title: data.title, poster_path: data.poster_path, status: WatchStatus.PLAN_TO_WATCH, tmdb_rating: data.tmdb_rating },
+      update: { tmdb_rating: data.tmdb_rating },
     })
     revalidatePath("/", "layout")
     return null

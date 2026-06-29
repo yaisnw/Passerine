@@ -27,6 +27,7 @@ model Watchlist {
   title        String
   poster_path  String
   status       WatchStatus
+  tmdb_rating  Float?
   favorite     Boolean     @default(false)
   added_at     DateTime    @default(now())
   watched_at   DateTime?

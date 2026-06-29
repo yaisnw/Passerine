@@ -19,6 +19,7 @@ interface Props {
   media_type: MediaType
   title: string
   poster_path: string
+  tmdb_rating?: number
   watchlist_id: number | null
   status?: WatchStatus | null
   variant?: "full" | "icon"
@@ -29,6 +30,7 @@ export default function WatchlistAddButton({
   media_type,
   title,
   poster_path,
+  tmdb_rating,
   watchlist_id,
   status,
   variant = "full",
@@ -47,7 +49,7 @@ export default function WatchlistAddButton({
     setError(null)
     startTransition(async () => {
       setOptimisticState({ added: true, status: WatchStatus.PLAN_TO_WATCH })
-      const error = await addToWatchlist({ tmdb_id, media_type, title, poster_path })
+      const error = await addToWatchlist({ tmdb_id, media_type, title, poster_path, tmdb_rating })
       setError(error)
     })
   }
