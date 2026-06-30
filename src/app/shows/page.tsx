@@ -7,7 +7,7 @@ import Navbar from "@/components/layout/navbar"
 import BackButton from "@/components/ui/back-button"
 import MediaCard from "@/components/media/media-card"
 import Pagination from "@/components/ui/pagination"
-import SortSelect from "@/components/ui/sort-select"
+import SortSelect from "@/components/ui/media-sort"
 
 interface Props {
   searchParams: Promise<{ page?: string; sort?: string }>
@@ -24,14 +24,16 @@ export default async function ShowsPage({ searchParams }: Props) {
   const totalPages = Math.min(data.total_pages, 500)
 
   let watchlistMap: Map<string, number> = new Map()
+  let favoriteSet: Set<string> = new Set()
   if (session?.user?.email) {
     const user = await prisma.user.findUnique({ where: { email: session.user.email } })
     if (user) {
       const entries = await prisma.watchlist.findMany({
         where: { user_id: user.user_id },
-        select: { watchlist_id: true, tmdb_id: true, media_type: true },
+        select: { watchlist_id: true, tmdb_id: true, media_type: true, favorite: true },
       })
       watchlistMap = new Map(entries.map((e) => [`${e.tmdb_id}:${e.media_type}`, e.watchlist_id]))
+      favoriteSet = new Set(entries.filter((e) => e.favorite).map((e) => `${e.tmdb_id}:${e.media_type}`))
     }
   }
 
@@ -58,6 +60,7 @@ export default async function ShowsPage({ searchParams }: Props) {
                 key={show.id}
                 item={show}
                 watchlist_id={watchlist_id}
+                isFavorite={favoriteSet.has(`${show.id}:${MediaType.TV}`)}
                 isAuthenticated={!!session}
               />
             )

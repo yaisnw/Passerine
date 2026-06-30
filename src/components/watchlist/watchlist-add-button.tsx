@@ -23,6 +23,7 @@ interface Props {
   watchlist_id: number | null
   status?: WatchStatus | null
   variant?: "full" | "icon"
+  className?: string
 }
 
 export default function WatchlistAddButton({
@@ -34,6 +35,7 @@ export default function WatchlistAddButton({
   watchlist_id,
   status,
   variant = "full",
+  className
 }: Props) {
   const [optimisticState, setOptimisticState] = useOptimistic<{
     added: boolean
@@ -86,7 +88,8 @@ export default function WatchlistAddButton({
         aria-label={optimisticState.added ? "Remove from watchlist" : "Add to watchlist"}
         className={cn(
           "size-9 transition-all duration-200 active:scale-95 border border-foreground/20",
-          !optimisticState.added && "bg-background/70 backdrop-blur-sm"
+          !optimisticState.added && "bg-background/70 backdrop-blur-sm",
+          className
         )}
       >
         {optimisticState.added
@@ -156,7 +159,8 @@ export default function WatchlistAddButton({
           size="lg"
           className={cn(
             "gap-2 rounded-r-none border border-r-0 active:scale-95  hover:text-foreground",
-            optimisticState.status ? statusColors[optimisticState.status] : ""
+            optimisticState.status ? statusColors[optimisticState.status] : "",
+            className
           )}
         >
           <Bookmark className="size-5 fill-current" strokeWidth={1.75} />

@@ -8,7 +8,7 @@ import Navbar from "@/components/layout/navbar"
 import BackButton from "@/components/ui/back-button"
 import MediaCard from "@/components/media/media-card"
 import Pagination from "@/components/ui/pagination"
-import SortSelect from "@/components/ui/sort-select"
+import SortSelect from "@/components/ui/media-sort"
 
 interface Props {
   searchParams: Promise<{ q?: string; page?: string; sort?: string }>
@@ -27,14 +27,16 @@ export default async function SearchPage({ searchParams }: Props) {
   const results = sortResults(data.results, sortOption)
 
   let watchlistMap: Map<string, number> = new Map()
+  let favoriteSet: Set<string> = new Set()
   if (session?.user?.email) {
     const user = await prisma.user.findUnique({ where: { email: session.user.email } })
     if (user) {
       const entries = await prisma.watchlist.findMany({
         where: { user_id: user.user_id },
-        select: { watchlist_id: true, tmdb_id: true, media_type: true },
+        select: { watchlist_id: true, tmdb_id: true, media_type: true, favorite: true },
       })
       watchlistMap = new Map(entries.map((e) => [`${e.tmdb_id}:${e.media_type}`, e.watchlist_id]))
+      favoriteSet = new Set(entries.filter((e) => e.favorite).map((e) => `${e.tmdb_id}:${e.media_type}`))
     }
   }
 
@@ -58,12 +60,14 @@ export default async function SearchPage({ searchParams }: Props) {
         ) : (
           <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5">
             {results.map((result) => {
-              const watchlist_id = watchlistMap.get(`${result.id}:${result.media_type === "movie" ? MediaType.MOVIE : MediaType.TV}`) ?? null
+              const mediaType = result.media_type === "movie" ? MediaType.MOVIE : MediaType.TV
+              const watchlist_id = watchlistMap.get(`${result.id}:${mediaType}`) ?? null
               return (
                 <MediaCard
                   key={`${result.media_type}-${result.id}`}
                   item={result}
                   watchlist_id={watchlist_id}
+                  isFavorite={favoriteSet.has(`${result.id}:${mediaType}`)}
                   isAuthenticated={!!session}
                   showTypeBadge
                 />

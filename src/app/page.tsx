@@ -40,14 +40,16 @@ export default async function Home() {
 
   // Fetch watchlist for authenticated users and build a lookup map: `${tmdb_id}:${media_type}` -> watchlist_id
   let watchlistMap: Map<string, number> = new Map()
+  let favoriteSet: Set<string> = new Set()
   if (session?.user?.email) {
     const user = await prisma.user.findUnique({ where: { email: session.user.email } })
     if (user) {
       const entries = await prisma.watchlist.findMany({
         where: { user_id: user.user_id },
-        select: { watchlist_id: true, tmdb_id: true, media_type: true },
+        select: { watchlist_id: true, tmdb_id: true, media_type: true, favorite: true },
       })
       watchlistMap = new Map(entries.map((e) => [`${e.tmdb_id}:${e.media_type}`, e.watchlist_id]))
+      favoriteSet = new Set(entries.filter((e) => e.favorite).map((e) => `${e.tmdb_id}:${e.media_type}`))
     }
   }
 
@@ -67,9 +69,9 @@ export default async function Home() {
               </p>
             </div>
 
-            <MediaSection title="Trending movies" href="/movies" icon={TrendingUp} items={movies} watchlistMap={watchlistMap} isAuthenticated />
+            <MediaSection title="Trending movies" href="/movies" icon={TrendingUp} items={movies} watchlistMap={watchlistMap} favoriteSet={favoriteSet} isAuthenticated />
             <div className="mt-10">
-              <MediaSection title="Trending TV shows" href="/shows" icon={TrendingUp} items={shows} watchlistMap={watchlistMap} isAuthenticated />
+              <MediaSection title="Trending TV shows" href="/shows" icon={TrendingUp} items={shows} watchlistMap={watchlistMap} favoriteSet={favoriteSet} isAuthenticated />
             </div>
           </section>
         ) : (
@@ -139,6 +141,7 @@ function MediaSection({
   icon: Icon,
   items,
   watchlistMap = new Map(),
+  favoriteSet = new Set(),
   isAuthenticated = false,
 }: {
   title: string
@@ -146,6 +149,7 @@ function MediaSection({
   icon: React.ElementType
   items: (Movie | TvShow)[]
   watchlistMap?: Map<string, number>
+  favoriteSet?: Set<string>
   isAuthenticated?: boolean
 }) {
   return (
@@ -165,7 +169,7 @@ function MediaSection({
           const mediaType = "title" in item ? MediaType.MOVIE : MediaType.TV
           const watchlist_id = watchlistMap.get(`${item.id}:${mediaType}`) ?? null
           return (
-            <MediaCard key={item.id} item={item} watchlist_id={watchlist_id} isAuthenticated={isAuthenticated} />
+            <MediaCard key={item.id} item={item} watchlist_id={watchlist_id} isFavorite={favoriteSet.has(`${item.id}:${mediaType}`)} isAuthenticated={isAuthenticated} />
           )
         })}
       </div>

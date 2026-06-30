@@ -15,7 +15,7 @@ interface Props {
   value: SortOption
 }
 
-export default function SortSelect({ value }: Props) {
+export default function MediaSort({ value }: Props) {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()

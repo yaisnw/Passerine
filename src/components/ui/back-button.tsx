@@ -10,7 +10,7 @@ export default function BackButton() {
     <Button
       variant="ghost"
       onClick={() => router.back()}
-      className="inline-flex my-6 items-center gap-1.5 text-md text-muted-foreground
+      className="inline-flex my-6 items-center gap-1.5 text-md text-accent
       cursor-pointer hover:text-foreground transition-colors"
     >
       <ArrowLeft className="size-4" strokeWidth={1.75} />

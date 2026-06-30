@@ -2,12 +2,13 @@ export const dynamic = "force-dynamic"
 
 import Image from "next/image"
 import { redirect } from "next/navigation"
-import { UserCircle2, Bookmark, Star, Pen } from "lucide-react"
+import { UserCircle2, Bookmark, Star, Pen, Heart } from "lucide-react"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import Navbar from "@/components/layout/navbar"
 import BackButton from "@/components/ui/back-button"
 import WatchlistGrid from "@/components/profile/watchlist-grid"
+import FavoritesGrid from "@/components/profile/favorites-grid"
 import ProfileReviewsGrid from "@/components/profile/profile-reviews-grid"
 import ProfileTabs from "@/components/profile/profile-tabs"
 import { WatchStatus } from "@/generated/prisma/enums"
@@ -38,7 +39,7 @@ export default async function ProfilePage({ searchParams }: Props) {
   const user = await prisma.user.findUnique({ where: { email: session.user.email } })
   if (!user) redirect("/login")
 
-  const [watchlist, totalCount, completedCount, reviewCount] = await Promise.all([
+  const [watchlist, totalCount, completedCount, reviewCount, favoriteCount] = await Promise.all([
     prisma.watchlist.findMany({
       where: { user_id: user.user_id, ...(statusFilter ? { status: statusFilter } : {}) },
       orderBy,
@@ -47,7 +48,14 @@ export default async function ProfilePage({ searchParams }: Props) {
     prisma.watchlist.count({ where: { user_id: user.user_id } }),
     prisma.watchlist.count({ where: { user_id: user.user_id, status: WatchStatus.COMPLETED } }),
     prisma.review.count({ where: { user_id: user.user_id } }),
+    prisma.watchlist.count({ where: { user_id: user.user_id, favorite: true } }),
   ])
+
+  const favoriteEntries = await prisma.watchlist.findMany({
+    where: { user_id: user.user_id, favorite: true },
+    orderBy,
+    select: { watchlist_id: true, tmdb_id: true, media_type: true, title: true, poster_path: true, tmdb_rating: true, added_at: true },
+  })
 
   const reviewEntries = watchlist
     .filter((e) => e.review !== null)
@@ -64,7 +72,7 @@ export default async function ProfilePage({ searchParams }: Props) {
   return (
     <>
       <Navbar />
-      <main className="mx-auto w-full max-w-6xl px-6 ">
+      <main className="mx-auto w-full max-w-6xl px-6 mb-10 ">
         <BackButton />
         {/* Profile header */}
         <div className="mb-10 flex items-center gap-5">
@@ -86,9 +94,10 @@ export default async function ProfilePage({ searchParams }: Props) {
         </div>
 
         {/* Stats */}
-        <div className="mb-10 grid grid-cols-3 gap-4 sm:grid-cols-3 md:w-fit md:flex md:gap-6">
+        <div className="mb-10 grid grid-cols-4 gap-4 sm:grid-cols-4 items-start md:w-fit md:flex md:gap-6">
           <Stat label="Watchlist" value={totalCount} icon={Bookmark} />
           <Stat label="Completed" value={completedCount} icon={Star} />
+          <Stat label="Favorites" value={favoriteCount} icon={Heart} />
           <Stat label="Reviews" value={reviewCount} icon={Pen} />
         </div>
 
@@ -96,6 +105,7 @@ export default async function ProfilePage({ searchParams }: Props) {
         <ProfileTabs active={tab} />
 
         {tab === "watchlist" && <WatchlistGrid entries={watchlist} activeStatus={status} activeSort={sort} />}
+        {tab === "favorites" && <FavoritesGrid entries={favoriteEntries} activeSort={sort} />}
         {tab === "reviews" && <ProfileReviewsGrid entries={reviewEntries} />}
       </main>
     </>
@@ -104,7 +114,7 @@ export default async function ProfilePage({ searchParams }: Props) {
 
 function Stat({ label, value, icon: Icon }: { label: string; value: number; icon: React.ElementType }) {
   return (
-    <div className="flex flex-col justify-center items-center gap- rounded-xl border border-border bg-card px-5 py-4">
+    <div className="w-fit mx-auto flex flex-col justify-center items-center rounded-xl border border-border bg-card px-2 sm:px-5 py-4">
       <div className="flex gap-4 items-center justify-center">
         <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10">
           <Icon className="size-5  text-primary" strokeWidth={1.75} />

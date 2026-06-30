@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils"
 
 const tabs = [
   { value: "watchlist", label: "Watchlist" },
+  { value: "favorites", label: "Favorites" },
   { value: "reviews", label: "Reviews" },
 ]
 

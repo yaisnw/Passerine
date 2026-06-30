@@ -14,6 +14,7 @@ import type { MediaType, MovieDetails, TvDetails } from "@/lib/tmdb.types"
 import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/db"
 import { MediaType as PrismaMediaType } from "@/generated/prisma/enums"
+import FavoriteButton from "@/components/watchlist/favorite-button"
 
 interface Props {
   params: Promise<{ type: string; id: string }>
@@ -43,6 +44,7 @@ export default async function MediaPage({ params, searchParams }: Props) {
 
   let watchlist_id: number | null = null
   let watchlistStatus: import("@/generated/prisma/enums").WatchStatus | null = null
+  let isFavorite = false
   let existingReview: { rating: number; review_text: string | null } | null = null
   let currentUserId: number | undefined
 
@@ -57,11 +59,12 @@ export default async function MediaPage({ params, searchParams }: Props) {
             media_type: mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV,
           },
         },
-        select: { watchlist_id: true, status: true, review: { select: { rating: true, review_text: true } } },
+        select: { watchlist_id: true, status: true, favorite: true, review: { select: { rating: true, review_text: true } } },
       })
       currentUserId = user.user_id
       watchlist_id = entry?.watchlist_id ?? null
       watchlistStatus = entry?.status ?? null
+      isFavorite = entry?.favorite ?? false
       existingReview = entry?.review ?? null
     }
   }
@@ -240,15 +243,23 @@ export default async function MediaPage({ params, searchParams }: Props) {
               {/* Actions */}
               <div className="flex flex-wrap items-start gap-2 pt-1">
                 {session && (
-                  <WatchlistAddButton
-                    tmdb_id={mediaId}
-                    media_type={mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV}
-                    title={title}
-                    poster_path={media.poster_path ?? ""}
-                    tmdb_rating={media.vote_average ?? undefined}
-                    watchlist_id={watchlist_id}
-                    status={watchlistStatus}
-                  />
+                  <>
+                    <WatchlistAddButton
+                      tmdb_id={mediaId}
+                      media_type={mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV}
+                      title={title}
+                      poster_path={media.poster_path ?? ""}
+                      tmdb_rating={media.vote_average ?? undefined}
+                      watchlist_id={watchlist_id}
+                      status={watchlistStatus}
+                    />
+                    {watchlist_id && (
+                      <FavoriteButton
+                        watchlist_id={watchlist_id}
+                        isFavorite={isFavorite}
+                      />
+                    )}
+                    </>
                 )}
                 {session && (watchlistStatus === "COMPLETED" || existingReview) && watchlist_id && (
                   <WriteReviewSheet

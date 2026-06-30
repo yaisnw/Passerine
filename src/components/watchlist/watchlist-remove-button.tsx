@@ -3,14 +3,16 @@
 import { useTransition, useState } from "react"
 import { X } from "lucide-react"
 import { removeFromWatchlist } from "@/actions/watchlist"
+import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 
 interface Props {
   watchlistId: number
   onRemove?: () => void
+  className?: string
 }
 
-export default function WatchlistRemoveButton({ watchlistId, onRemove }: Props) {
+export default function WatchlistRemoveButton({ watchlistId, onRemove, className }: Props) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -30,7 +32,11 @@ export default function WatchlistRemoveButton({ watchlistId, onRemove }: Props) 
         onClick={handleRemove}
         disabled={isPending}
         size="icon"
-        className="absolute top-1 right-1 rounded-full bg-black/60 hover:bg-red-500 text-white/70 backdrop-blur-sm transition-[opacity,color] disabled:pointer-events-none border border-white/30"
+        variant="destructive"
+        className={cn(
+          "size-9 rounded-full drop-shadow-border drop-shadow-xs",
+          className
+        )}
         aria-label="Remove from watchlist"
       >
         <X className="size-5" />

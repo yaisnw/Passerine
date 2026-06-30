@@ -15,9 +15,9 @@ export default async function Navbar() {
         {/* Logo */}
         <Link
           href="/"
-          className="flex shrink-0 items-center gap-2 text-foreground transition-opacity hover:opacity-80"
+          className="flex shrink-0 items-center leading-none gap-2 text-foreground transition-opacity hover:opacity-80"
         >
-          <Film className="size-5 text-primary" strokeWidth={1.75} />
+          <Film className="size-7 sm:size-6 text-primary" strokeWidth={1.75} />
           <p className="hidden text-2xl align-center font-semibold tracking-tight leading-none sm:block">Passerine</p>
         </Link>
 
@@ -40,7 +40,7 @@ export default async function Navbar() {
                     className="rounded-full object-cover"
                   />
                 ) : (
-                  <UserCircle2 className="size-6 text-accent" strokeWidth={1.75} />
+                  <UserCircle2 className="size-7 md:size-6 text-accent" strokeWidth={1.75} />
                 )}
                 <span className="hidden leading-none text-accent sm:block">
                   {session.user?.name}
@@ -54,7 +54,7 @@ export default async function Navbar() {
                 }}
               >
                 <Button variant="ghost" size="icon" type="submit" className="size-9 sm:w-auto sm:px-3 sm:gap-1.5">
-                  <LogOut className="size-5" strokeWidth={1.75} />
+                  <LogOut className="size-7 md:size-5" strokeWidth={1.75} />
                   <span className="hidden sm:inline">Sign out</span>
                 </Button>
               </form>
@@ -62,11 +62,11 @@ export default async function Navbar() {
           ) : (
             <>
               <Link href="/login" className={cn(buttonVariants({ variant: "ghost", size: "icon" }), "size-9 sm:w-auto sm:px-3 sm:gap-1.5")}>
-                <LogIn className="size-5" strokeWidth={1.75} />
+                <LogIn className="size-7 md:size-5" strokeWidth={1.75} />
                 <span className="hidden sm:inline">Sign in</span>
               </Link>
               <Link href="/register" className={cn(buttonVariants({ size: "icon" }), "size-9 sm:w-auto sm:px-3 sm:gap-1.5")}>
-                <UserPlus className="size-5" strokeWidth={1.75} />
+                <UserPlus className="size-7 md:size-5" strokeWidth={1.75} />
                 <span className="hidden sm:inline">Get started</span>
               </Link>
             </>

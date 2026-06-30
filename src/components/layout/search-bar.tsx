@@ -79,7 +79,7 @@ export default function SearchBar() {
             onChange={(e) => handleQueryChange(e.target.value)}
             onFocus={() => results.length > 0 && setOpen(true)}
             placeholder="Search movies & TV..."
-            className="pl-9 h-9 text-sm"
+            className="pl-9 h-9 text-sm border border-border focus:border-primary focus:ring-1 focus:ring-primary"
           />
         </div>
       </form>

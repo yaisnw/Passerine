@@ -6,15 +6,17 @@ import type { MediaItem } from "@/lib/tmdb.types"
 import type { SearchResult } from "@/lib/tmdb"
 import { MediaType } from "@/generated/prisma/enums"
 import WatchlistAddButton from "@/components/watchlist/watchlist-add-button"
+import FavoriteButton from "@/components/watchlist/favorite-button"
 
 interface MediaCardProps {
   item: MediaItem | SearchResult
   watchlist_id?: number | null
+  isFavorite?: boolean
   isAuthenticated?: boolean
   showTypeBadge?: boolean
 }
 
-export default function MediaCard({ item, watchlist_id = null, isAuthenticated = false, showTypeBadge = false }: MediaCardProps) {
+export default function MediaCard({ item, watchlist_id = null, isFavorite = false, isAuthenticated = false, showTypeBadge = false }: MediaCardProps) {
   const mediaTypeStr: "movie" | "tv" = item.media_type ?? ("title" in item ? "movie" : "tv")
   const title = "title" in item ? (item.title ?? "Unknown") : (item.name ?? "Unknown")
   const year = ("release_date" in item ? item.release_date : item.first_air_date)?.slice(0, 4)
@@ -57,9 +59,9 @@ export default function MediaCard({ item, watchlist_id = null, isAuthenticated =
           )}
         </div>
 
-        {/* Watchlist button */}
+        {/* Watchlist + favorite buttons */}
         {isAuthenticated && (
-          <div className="absolute top-2 right-2">
+          <div className="relative">
             <WatchlistAddButton
               tmdb_id={item.id}
               media_type={mediaType}
@@ -68,7 +70,15 @@ export default function MediaCard({ item, watchlist_id = null, isAuthenticated =
               tmdb_rating={item.vote_average ?? undefined}
               watchlist_id={watchlist_id}
               variant="icon"
+              className="absolute top-2 right-2 z-10"
             />
+            {watchlist_id != null && (
+              <FavoriteButton
+                watchlist_id={watchlist_id}
+                isFavorite={isFavorite}
+                className="absolute top-2 left-2 z-10"
+              />
+            )}
           </div>
         )}
       </div>
