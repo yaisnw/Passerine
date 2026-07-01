@@ -38,7 +38,10 @@ describe("sortResults", () => {
       const sorted = sortResults(results, "popularity")
       expect(sorted.map((r) => r.id)).toEqual([1, 2, 3])
     })
-    it("returns results with descending(default) rating", () => {
+  })
+
+  describe("rating", () => {
+    it("sorts by bayesian score descending", () => {
       const results = [
         makeResult({ id: 3, vote_average: 9 }),
         makeResult({ id: 1, vote_average: 8 }),
@@ -47,7 +50,27 @@ describe("sortResults", () => {
       const sorted = sortResults(results, "rating")
       expect(sorted.map((r) => r.id)).toEqual([3, 1, 2])
     })
-    it("returns results with descending date", () => {
+
+    it("puts unrated items at the end", () => {
+      const results = [
+        makeResult({ id: 3, vote_average: 9 }),
+        makeResult({ id: 4, vote_average: 0 }),
+        makeResult({ id: 1, vote_average: 8 }),
+        makeResult({ id: 2, vote_average: 6 }),
+      ]
+      const sorted = sortResults(results, "rating")
+      expect(sorted.map((r) => r.id)).toEqual([3, 1, 2, 4])
+    })
+
+    it("handles empty results", () => {
+      const results: SearchResult[] = []
+      const sorted = sortResults(results, "rating")
+      expect(sorted).toEqual([])
+    })
+  })
+
+  describe("date_desc", () => {
+    it("sorts newest first", () => {
       const results = [
         makeResult({ id: 2, release_date: "2023-01-01" }),
         makeResult({ id: 1, release_date: "2022-01-01" }),
@@ -56,7 +79,20 @@ describe("sortResults", () => {
       const sorted = sortResults(results, "date_desc")
       expect(sorted.map((r) => r.id)).toEqual([2, 1, 3])
     })
-    it("returns results with ascending date", () => {
+
+    it("falls back to first_air_date for TV shows", () => {
+      const results = [
+        makeResult({ id: 2, first_air_date: "2023-01-01", media_type: "tv" }),
+        makeResult({ id: 1, first_air_date: "2022-01-01", media_type: "tv" }),
+        makeResult({ id: 3, first_air_date: "2021-01-01", media_type: "tv" }),
+      ]
+      const sorted = sortResults(results, "date_desc")
+      expect(sorted.map((r) => r.id)).toEqual([2, 1, 3])
+    })
+  })
+
+  describe("date_asc", () => {
+    it("sorts oldest first", () => {
       const results = [
         makeResult({ id: 3, release_date: "2023-01-01" }),
         makeResult({ id: 1, release_date: "2022-01-01" }),
@@ -65,35 +101,15 @@ describe("sortResults", () => {
       const sorted = sortResults(results, "date_asc")
       expect(sorted.map((r) => r.id)).toEqual([2, 1, 3])
     })
-  })
-
-  describe("rating", () => {
-    it("sorts by bayesian score descending", () => {
-      // TODO
-    })
-
-    it("puts unrated items at the end", () => {
-      // TODO
-    })
-
-    it("handles empty results", () => {
-      // TODO
-    })
-  })
-
-  describe("date_desc", () => {
-    it("sorts newest first", () => {
-      // TODO
-    })
-
     it("falls back to first_air_date for TV shows", () => {
-      // TODO
+      const results = [
+        makeResult({ id: 3, first_air_date: "2023-01-01", media_type: "tv" }),
+        makeResult({ id: 1, first_air_date: "2022-01-01", media_type: "tv" }),
+        makeResult({ id: 2, first_air_date: "2021-01-01", media_type: "tv" }),
+      ]
+      const sorted = sortResults(results, "date_asc")
+      expect(sorted.map((r) => r.id)).toEqual([2, 1, 3])
     })
   })
+})  
 
-  describe("date_asc", () => {
-    it("sorts oldest first", () => {
-      // TODO
-    })
-  })
-})
