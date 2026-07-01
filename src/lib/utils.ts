@@ -71,7 +71,7 @@ export function sortResults(results: SearchResult[], sort: SortOption): SearchRe
       }
       case "popularity":
       default:
-        return (b.popularity ?? 0) - (a.popularity ?? 0)
+        return 0
     }
   })
 }
