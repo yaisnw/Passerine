@@ -103,9 +103,9 @@ describe("sortResults", () => {
     })
     it("falls back to first_air_date for TV shows", () => {
       const results = [
-        makeResult({ id: 3, first_air_date: "2023-01-01", media_type: "tv" }),
-        makeResult({ id: 1, first_air_date: "2022-01-01", media_type: "tv" }),
-        makeResult({ id: 2, first_air_date: "2021-01-01", media_type: "tv" }),
+        makeResult({ id: 3, release_date: undefined, first_air_date: "2023-01-01", media_type: "tv" }),
+        makeResult({ id: 1, release_date: undefined, first_air_date: "2022-01-01", media_type: "tv" }),
+        makeResult({ id: 2, release_date: undefined, first_air_date: "2021-01-01", media_type: "tv" }),
       ]
       const sorted = sortResults(results, "date_asc")
       expect(sorted.map((r) => r.id)).toEqual([2, 1, 3])
