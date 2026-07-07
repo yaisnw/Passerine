@@ -23,6 +23,7 @@ interface Props {
   showRemove?: boolean
   showFavorite?: boolean
   onRemove?: () => void
+  onError?: (error: string) => void
   onFavoriteToggle?: (next: boolean) => void
   onStatusChange?: (next: WatchStatus) => void
 }
@@ -41,6 +42,7 @@ export default function WatchlistCard({
   showRemove = false,
   showFavorite = false,
   onRemove,
+  onError,
   onFavoriteToggle,
   onStatusChange,
 }: Props) {
@@ -76,7 +78,7 @@ export default function WatchlistCard({
         {(showRemove || showFavorite) && (
           <div className="relative">
             {showRemove && (
-              <WatchlistRemoveButton watchlistId={watchlist_id} onRemove={onRemove} className="absolute top-2 right-2 z-10" />
+              <WatchlistRemoveButton watchlistId={watchlist_id} onRemove={onRemove} onError={onError} className="absolute top-2 right-2 z-10" />
             )}
             {showFavorite && (
               <FavoriteButton

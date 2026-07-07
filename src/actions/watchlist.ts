@@ -21,13 +21,30 @@ export async function submitReview(watchlist_id: number, rating: number, review_
     await prisma.review.upsert({
       where: { watchlist_id },
       create: { watchlist_id, user_id: user.user_id, rating, review_text },
-      update: { rating, review_text },
+      update: { rating, review_text: review_text ?? null },
     })
 
     revalidatePath("/", "layout")
     return null
   } catch {
     return "Something went wrong. Please try again."
+  }
+}
+
+export async function deleteReview(watchlist_id: number): Promise<string | null> {
+  try {
+    const user = await getUser()
+    const entry = await prisma.watchlist.findUnique({
+      where: { watchlist_id, user_id: user.user_id },
+      select: { watchlist_id: true },
+    })
+    if (!entry) return "Watchlist entry not found"
+
+    await prisma.review.delete({ where: { watchlist_id } })
+    revalidatePath("/", "layout")
+    return null
+  } catch {
+    return "Failed to delete review"
   }
 }
 
@@ -45,12 +62,13 @@ export async function addToWatchlist(data: {
   title: string
   poster_path: string
   tmdb_rating?: number
+  status?: WatchStatus
 }): Promise<string | null> {
   try {
     const user = await getUser()
     await prisma.watchlist.upsert({
       where: { user_id_tmdb_id_media_type: { user_id: user.user_id, tmdb_id: data.tmdb_id, media_type: data.media_type } },
-      create: { user_id: user.user_id, tmdb_id: data.tmdb_id, media_type: data.media_type, title: data.title, poster_path: data.poster_path, status: WatchStatus.PLAN_TO_WATCH, tmdb_rating: data.tmdb_rating },
+      create: { user_id: user.user_id, tmdb_id: data.tmdb_id, media_type: data.media_type, title: data.title, poster_path: data.poster_path, status: data.status ?? WatchStatus.PLAN_TO_WATCH, tmdb_rating: data.tmdb_rating },
       update: { tmdb_rating: data.tmdb_rating },
     })
     revalidatePath("/", "layout")

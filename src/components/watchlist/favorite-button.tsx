@@ -39,7 +39,7 @@ export default function FavoriteButton({ watchlist_id, isFavorite, onToggle, cla
       variant={optimistic ? "default" : "outline"}
       aria-label={optimistic ? "Remove from favorites" : "Add to favorites"}
       className={cn(
-        "size-9 transition-all duration-200 active:scale-95 border border-foreground/20 left-2 top-2 right-0",
+        "size-10 transition-all duration-200 active:scale-95 border border-foreground/20",
         !optimistic && "bg-background/70 backdrop-blur-sm",
         className
       )}
