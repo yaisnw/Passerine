@@ -4,13 +4,16 @@ A movie and TV watchlist app. Search for films and shows, track your watch statu
 
 Built with Next.js 16, TypeScript, PostgreSQL, and the TMDB API.
 
+**Live:** [passerine.vercel.app](https://passerine.vercel.app/)
+
 ![Next.js](https://img.shields.io/badge/Next.js-16-black?logo=next.js) ![TypeScript](https://img.shields.io/badge/TypeScript-5-blue?logo=typescript) ![PostgreSQL](https://img.shields.io/badge/PostgreSQL-Supabase-green?logo=postgresql)
 
 ## Features
 
-- **Browse & Search** — Discover trending movies and shows, search the full TMDB catalog with live autocomplete
-- **Watchlist** — Add titles with a status: Plan to Watch, Watching, Completed, or Dropped
-- **Reviews** — Rate titles out of 10 and write a review once you've marked them as completed
+- **Browse & Search** — Discover trending movies and shows, search the full TMDB catalog
+- **Media details** — Cast, overview, runtime, budget/revenue (movies) or seasons/episodes (TV), and a backdrop lightbox
+- **Watchlist** — Add titles with a status: Plan to Watch, Watching, Completed, or Dropped, editable from a dropdown
+- **Reviews** — Rate anything marked Completed on a half-star scale (0.5–10) with an optional written review; edit or delete your review any time, with optimistic UI updates
 - **Favorites** — Star anything on your watchlist
 - **Profile** — View your stats, filter your watchlist by status, and browse your reviews
 - **Auth** — Sign up with email/password or Google OAuth
@@ -45,11 +48,19 @@ cp .env.example .env
 ```
 
 ```env
+# Database (Supabase)
 DATABASE_URL=
+
+# NextAuth v5
 AUTH_SECRET=
-AUTH_GOOGLE_ID=
-AUTH_GOOGLE_SECRET=
-TMDB_API_KEY=
+AUTH_URL=
+
+# Google OAuth
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+
+# TMDB API
+TMDB_API_TOKEN=
 ```
 
 Run the database migration and start the dev server:
@@ -64,8 +75,40 @@ Open [http://localhost:3000](http://localhost:3000).
 ## Commands
 
 ```bash
-npm run dev          # start dev server
-npm run test:run     # run tests
-npm run lint         # lint
-npx prisma studio    # open Prisma Studio
+npm run dev             # start dev server
+npm run build            # production build
+npm run start            # start production server
+npm run lint             # lint
+npm run test             # run tests in watch mode
+npm run test:run         # run tests once
+npx prisma studio        # open Prisma Studio
+npx prisma migrate dev   # run migrations
 ```
+
+## Project structure
+
+```
+src/
+  app/            App Router pages and layouts
+    api/          API routes (auth, search)
+    media/[type]/[id]/   Movie/TV details page
+  actions/        Server actions (watchlist, reviews)
+  components/
+    ui/           shared/shadcn primitives
+    layout/       navbar, etc.
+    media/        media details, reviews, review dialogs
+    watchlist/    add/remove/status/favorite controls
+    profile/      profile grids (watchlist, favorites, reviews)
+  lib/            auth config, db client, TMDB client, utilities
+  generated/      Prisma client (generated, do not edit)
+  test/           Vitest setup
+prisma/
+  schema.prisma   Data model
+  migrations/     Migration history
+```
+
+## Data model
+
+- **User** — account info; supports both OAuth and password-based accounts
+- **Watchlist** — one row per (user, TMDB title): status, favorite flag, optional review
+- **Review** — rating (0.5–10 in half-point steps) and optional text, one per watchlist entry

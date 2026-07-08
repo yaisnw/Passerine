@@ -9,8 +9,6 @@ const globalForPrisma = globalThis as unknown as { prisma: PrismaClient }
 function createPrisma() {
   const pool = new pg.Pool({
     connectionString,
-    max: 1,
-    idleTimeoutMillis: 0,
     connectionTimeoutMillis: 10000,
     ssl: false,
   })
