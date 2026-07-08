@@ -9,10 +9,11 @@ import { Button } from "@/components/ui/button"
 interface Props {
   watchlistId: number
   onRemove?: () => void
+  onError?: (error: string) => void
   className?: string
 }
 
-export default function WatchlistRemoveButton({ watchlistId, onRemove, className }: Props) {
+export default function WatchlistRemoveButton({ watchlistId, onRemove, onError, className }: Props) {
   const [isPending, startTransition] = useTransition()
   const [error, setError] = useState<string | null>(null)
 
@@ -22,7 +23,10 @@ export default function WatchlistRemoveButton({ watchlistId, onRemove, className
     onRemove?.()
     startTransition(async () => {
       const error = await removeFromWatchlist(watchlistId)
-      setError(error)
+      if (error) {
+        setError(error)
+        onError?.(error)
+      }
     })
   }
 

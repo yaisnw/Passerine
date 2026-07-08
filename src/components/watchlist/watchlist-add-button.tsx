@@ -135,7 +135,8 @@ export default function WatchlistAddButton({
                   onClick={() => {
                     startTransition(async () => {
                       setOptimisticState({ added: true, status: s.value })
-                      await addToWatchlist({ tmdb_id, media_type, title, poster_path })
+                      const error = await addToWatchlist({ tmdb_id, media_type, title, poster_path, tmdb_rating, status: s.value })
+                      setError(error)
                     })
                   }}
                 >
@@ -158,7 +159,7 @@ export default function WatchlistAddButton({
           disabled={isPending}
           size="lg"
           className={cn(
-            "gap-2 rounded-r-none border border-r-0 active:scale-95  hover:text-foreground",
+            "gap-2 rounded-r-none border border-r-0 active:scale-95 hover:text-foreground",
             optimisticState.status ? statusColors[optimisticState.status] : "",
             className
           )}

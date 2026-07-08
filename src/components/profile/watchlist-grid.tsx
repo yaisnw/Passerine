@@ -35,8 +35,18 @@ interface Props {
 export default function WatchlistGrid({ entries, activeStatus, activeSort = "added_at" }: Props) {
   const [removed, setRemoved] = useState<Set<number>>(new Set())
   const [statusOverrides, setStatusOverrides] = useState<Map<number, WatchStatus>>(new Map())
+  const [removeError, setRemoveError] = useState<string | null>(null)
   const router = useRouter()
   const searchParams = useSearchParams()
+
+  function undoRemove(watchlistId: number, error: string) {
+    setRemoveError(error)
+    setRemoved((prev) => {
+      const next = new Set(prev)
+      next.delete(watchlistId)
+      return next
+    })
+  }
 
   const items = entries
     .filter((e) => !removed.has(e.watchlist_id))
@@ -58,6 +68,8 @@ export default function WatchlistGrid({ entries, activeStatus, activeSort = "add
         <SortDropdown options={sortOptions} active={activeSort} onChange={(value) => setParam("sort", value)} />
       </div>
 
+      {removeError && <p className="text-sm text-destructive">{removeError}</p>}
+
       {/* Grid */}
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground">
@@ -77,6 +89,7 @@ export default function WatchlistGrid({ entries, activeStatus, activeSort = "add
               showRemove
               showFavorite
               onRemove={() => setRemoved((prev) => new Set(prev).add(entry.watchlist_id))}
+              onError={(error) => undoRemove(entry.watchlist_id, error)}
               onStatusChange={(next) => setStatusOverrides((prev) => new Map(prev).set(entry.watchlist_id, next))}
             />
           ))}

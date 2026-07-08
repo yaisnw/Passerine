@@ -22,6 +22,7 @@ interface Props {
   mediaTitle: string
   tmdbId?: number
   mediaType?: string
+  onSaved?: (rating: number, reviewText?: string) => void
 }
 
 export default function WriteReviewSheet({
@@ -31,6 +32,7 @@ export default function WriteReviewSheet({
   mediaTitle,
   tmdbId,
   mediaType,
+  onSaved,
 }: Props) {
   const pathname = usePathname()
   const router = useRouter()
@@ -47,7 +49,11 @@ export default function WriteReviewSheet({
     startTransition(async () => {
       const error = await submitReview(watchlistId, rating, text || undefined)
       if (error) setError(error)
-      else { setOpen(false); router.refresh() }
+      else {
+        setOpen(false)
+        if (onSaved) onSaved(rating, text || undefined)
+        else router.refresh()
+      }
     })
   }
 
@@ -135,6 +141,10 @@ export default function WriteReviewSheet({
           </div>
 
           {error && <p className="text-sm text-destructive">{error}</p>}
+
+          {rating === 0 && !error && (
+            <p className="text-xs text-muted-foreground">Select a rating to submit</p>
+          )}
 
           <Button onClick={handleSubmit} disabled={isPending || rating === 0}>
             {isPending ? "Submitting..." : "Submit review"}

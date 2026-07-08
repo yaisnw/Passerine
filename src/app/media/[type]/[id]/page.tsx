@@ -6,7 +6,7 @@ import { Star, Clock, Calendar, Globe, BarChart2, Tv } from "lucide-react"
 import Navbar from "@/components/layout/navbar"
 import BackdropLightbox from "@/components/media/backdrop-lightbox"
 import WatchlistAddButton from "@/components/watchlist/watchlist-add-button"
-import WriteReviewSheet from "@/components/media/write-review-sheet"
+import YourReviewSection from "@/components/media/your-review-section"
 import MediaReviews from "@/components/media/media-reviews"
 import BackButton from "@/components/ui/back-button"
 import { getMovieDetails, getMovieCredits, getTvDetails, getTvCredits, tmdbImage } from "@/lib/tmdb"
@@ -162,6 +162,12 @@ export default async function MediaPage({ params, searchParams }: Props) {
                   </div>
                 )}
               </div>
+              {media.backdrop_path && (
+                <BackdropLightbox
+                  src={tmdbImage(media.backdrop_path, "original")}
+                  alt={title}
+                />
+              )}
             </div>
 
             {/* Info */}
@@ -261,28 +267,7 @@ export default async function MediaPage({ params, searchParams }: Props) {
                     )}
                     </>
                 )}
-                {session && (watchlistStatus === "COMPLETED" || existingReview) && watchlist_id && (
-                  <WriteReviewSheet
-                    watchlistId={watchlist_id}
-                    mediaTitle={title}
-                    existingRating={existingReview?.rating}
-                    existingReview={existingReview?.review_text ?? undefined}
-                    tmdbId={mediaId}
-                    mediaType={mediaType}
-                  />
-                )}
-                {media.backdrop_path && (
-                  <BackdropLightbox
-                    src={tmdbImage(media.backdrop_path, "original")}
-                    alt={title}
-                  />
-                )}
               </div>
-              {session && watchlistStatus !== "COMPLETED" && watchlist_id && (
-                <p className="text-xs text-muted-foreground">
-                  Mark as completed to write a review
-                </p>
-              )}
             </div>
           </div>
 
@@ -343,32 +328,17 @@ export default async function MediaPage({ params, searchParams }: Props) {
           </section>
 
           {/* Your review */}
-          {existingReview && (
+          {session && watchlist_id && (
             <section className="mt-14">
               <h2 className="mb-5 text-base font-semibold text-foreground">Your review</h2>
-              <div className="rounded-xl border border-border bg-card px-4 py-3 flex flex-col gap-2">
-                <div className="flex items-center gap-0.5">
-                  {Array.from({ length: 10 }).map((_, i) => {
-                    const n = i + 1
-                    const full = existingReview.rating >= n
-                    const half = !full && existingReview.rating >= n - 0.5
-                    return (
-                      <span key={i} className="relative size-5">
-                        <Star className="absolute inset-0 size-5 text-muted-foreground" />
-                        {(full || half) && (
-                          <span className="absolute inset-0 overflow-hidden" style={{ width: half ? "50%" : "100%" }}>
-                            <Star className="size-5 fill-primary text-primary" />
-                          </span>
-                        )}
-                      </span>
-                    )
-                  })}
-                  <span className="ml-1.5 text-xs text-muted-foreground">{existingReview.rating} / 10</span>
-                </div>
-                {existingReview.review_text && (
-                  <p className="text-sm leading-relaxed text-foreground/80">{existingReview.review_text}</p>
-                )}
-              </div>
+              <YourReviewSection
+                watchlistId={watchlist_id}
+                watchlistStatus={watchlistStatus}
+                mediaTitle={title}
+                tmdbId={mediaId}
+                mediaType={mediaType}
+                existingReview={existingReview}
+              />
             </section>
           )}
 

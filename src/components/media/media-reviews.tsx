@@ -41,7 +41,7 @@ export default async function MediaReviews({ tmdbId, mediaType, currentUserId, p
   if (total === 0) return (
     <section className="mt-14">
       <h2 className="mb-5 text-base font-semibold text-foreground">Reviews</h2>
-      <p className="text-sm text-muted-foreground">No reviews yet. Be the first to write one.</p>
+      <p className="text-sm text-muted-foreground">No reviews yet. Be the first to write one by visiting the media page and marking it as completed.</p>
     </section>
   )
 
