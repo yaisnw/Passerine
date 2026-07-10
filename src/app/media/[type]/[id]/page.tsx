@@ -6,7 +6,6 @@ import { Star, Clock, Calendar, Globe, BarChart2, Tv } from "lucide-react"
 import Navbar from "@/components/layout/navbar"
 import BackdropLightbox from "@/components/media/backdrop-lightbox"
 import WatchlistAddButton from "@/components/watchlist/watchlist-add-button"
-import YourReviewSection from "@/components/media/your-review-section"
 import MediaReviews from "@/components/media/media-reviews"
 import BackButton from "@/components/ui/back-button"
 import { getMovieDetails, getMovieCredits, getTvDetails, getTvCredits, tmdbImage } from "@/lib/tmdb"
@@ -45,7 +44,6 @@ export default async function MediaPage({ params, searchParams }: Props) {
   let watchlist_id: number | null = null
   let watchlistStatus: import("@/generated/prisma/enums").WatchStatus | null = null
   let isFavorite = false
-  let existingReview: { rating: number; review_text: string | null } | null = null
   let currentUserId: number | undefined
 
   if (session?.user?.email) {
@@ -59,13 +57,12 @@ export default async function MediaPage({ params, searchParams }: Props) {
             media_type: mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV,
           },
         },
-        select: { watchlist_id: true, status: true, favorite: true, review: { select: { rating: true, review_text: true } } },
+        select: { watchlist_id: true, status: true, favorite: true },
       })
       currentUserId = user.user_id
       watchlist_id = entry?.watchlist_id ?? null
       watchlistStatus = entry?.status ?? null
       isFavorite = entry?.favorite ?? false
-      existingReview = entry?.review ?? null
     }
   }
   if (!media) notFound()
@@ -327,25 +324,13 @@ export default async function MediaPage({ params, searchParams }: Props) {
             </div>
           </section>
 
-          {/* Your review */}
-          {session && watchlist_id && (
-            <section className="mt-14">
-              <h2 className="mb-5 text-base font-semibold text-foreground">Your review</h2>
-              <YourReviewSection
-                watchlistId={watchlist_id}
-                watchlistStatus={watchlistStatus}
-                mediaTitle={title}
-                tmdbId={mediaId}
-                mediaType={mediaType}
-                existingReview={existingReview}
-              />
-            </section>
-          )}
-
           <MediaReviews
             tmdbId={mediaId}
             mediaType={mediaType === "movie" ? PrismaMediaType.MOVIE : PrismaMediaType.TV}
             currentUserId={currentUserId}
+            watchlistId={watchlist_id}
+            mediaTitle={title}
+            mediaTypeParam={mediaType}
             page={currentPage}
           />
         </div>

@@ -15,7 +15,6 @@ export async function submitReview(watchlist_id: number, rating: number, review_
     })
 
     if (!entry) return "Watchlist entry not found"
-    if (entry.status !== WatchStatus.COMPLETED) return "Media must be completed to review"
     if (review_text && review_text.length > 1000) return "Review must be 1000 characters or less"
 
     await prisma.review.upsert({
