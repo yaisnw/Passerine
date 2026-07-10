@@ -3,10 +3,10 @@
 import { useOptimistic } from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { Star } from "lucide-react"
 import { tmdbImage } from "@/lib/tmdb"
 import WriteReviewSheet from "@/components/media/write-review-sheet"
 import DeleteReviewButton from "@/components/media/delete-review-button"
+import StarRating from "@/components/media/star-rating"
 
 interface ReviewEntry {
   watchlist_id: number
@@ -66,23 +66,7 @@ export default function ProfileReviewCard({ entry, onDeleted }: Props) {
             <DeleteReviewButton watchlistId={entry.watchlist_id} onDeleted={onDeleted} />
           </div>
         </div>
-        <div className="flex items-center gap-0.5">
-          {Array.from({ length: 10 }).map((_, i) => {
-            const n = i + 1
-            const full = review.rating >= n
-            const half = !full && review.rating >= n - 0.5
-            return (
-              <span key={i} className="relative size-4">
-                <Star className="absolute inset-0 size-4 text-muted-foreground" />
-                {(full || half) && (
-                  <span className="absolute inset-0 overflow-hidden" style={{ width: half ? "50%" : "100%" }}>
-                    <Star className="size-4 fill-primary text-primary" />
-                  </span>
-                )}
-              </span>
-            )
-          })}
-        </div>
+        <StarRating rating={review.rating} size="sm" />
         {review.review_text && (
           <p className="text-sm text-muted-foreground line-clamp-2 leading-relaxed">{review.review_text}</p>
         )}

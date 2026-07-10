@@ -25,10 +25,11 @@ export default function ProfileReviewsGrid({ entries }: Props) {
   if (items.length === 0) {
     return (
       <p className="text-sm text-muted-foreground">
-        No reviews yet. Write your first by visiting the <Link href="/" className="text-primary hover:underline">
-          media
+        No reviews yet. Write your first by adding something to your{" "}
+        <Link href="/profile" className="text-primary hover:underline">
+          watchlist
         </Link>{" "}
-        page and marking it as completed.
+        and reviewing it.
       </p>
     )
   }
